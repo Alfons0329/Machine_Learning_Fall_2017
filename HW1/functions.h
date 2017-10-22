@@ -40,7 +40,7 @@ typedef map<string, int> msi;
 typedef vector<double> vd;
 
 unsigned int column_cnt;
-string current_attribute; //use for untrophy Compare function
+int current_attribute_id; //use for untrophy Compare function
 
 class decision_tree
 {
@@ -49,7 +49,8 @@ public:
 	{
 		input_data();
 		attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
-		id3();
+		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
+		id3(flower_data,9,0);//test
 	}
 	struct flower
 	{
@@ -68,13 +69,15 @@ public:
 	};
 	//vs splitted_attribute; //attribute that had been splitted before
 	vector<string> aux_table_unsorted;
+	vector<flower>flower_data;
 	vs attribute_name;
+	vi attribute_name_id;
 	void input_data()
 	{
 		ifstream fptr;
 
 		fptr.open("irisdata.txt");
-		vector<flower>flower_data;
+
 		flower one_flower;
 		string str;
 		while(fptr)
@@ -110,46 +113,46 @@ public:
 			//push the unsorted data back
 			float cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=0.0;
-			string split_attribute;
+			int split_attribute_id;
 			//continuous data, sort each column and gain the max entrophy
-			for(int i=0;i<attribute_name.size();i++)
+			for(int i=0;i<attribute_name_id.size();i++)
 			{
-				current_attribute=attribute_name[i];
+				current_attribute_id=attribute_name_id[i];
 				sort(current_data.begin(),current_data.end(),mycompare);
 				for(int current_data_row=0;current_data_row<current_data.size();current_data_row++)//check which part have changed
 				{
 					if(current_data[current_data_row].ftype!=aux_table_unsorted[current_data_row]) //see the difference, do step 3 4
 					{
-						switch(str2int(current_attribute))
+						switch(current_attribute_id)
 						{
-							case str2int("sepal_length"):
+							case 0:
 							{
 								cur_boundary=(current_data[current_data_row].sepal_length+current_data[current_data_row-1].sepal_length)/2.0;
 								break;
 							}
-							case str2int("sepal_width"):
+							case 1:
 							{
 								cur_boundary=(current_data[current_data_row].sepal_width+current_data[current_data_row-1].sepal_width)/2.0;
 								break;
 							}
-							case str2int("pedal_length"):
+							case 2:
 							{
 								cur_boundary=(current_data[current_data_row].pedal_length+current_data[current_data_row-1].pedal_length)/2.0;
 								break;
 							}
-							case str2int("pedal_width"):
+							case 3:
 							{
 								cur_boundary=(current_data[current_data_row].pedal_width+current_data[current_data_row-1].pedal_width)/2.0;
 								break;
 							}
 						}
 						//calculate the information gain
-						cur_entrophy=id3(current_data,cur_boundary);
+						cur_entrophy=id3(current_data,current_attribute_id,cur_boundary);
 						if(cur_entrophy>max_entrophy)
 						{
 							max_entrophy=cur_entrophy;
 							max_ig_boundary=cur_boundary;
-							split_attribute=current_attribute;
+							split_attribute_id=current_attribute_id;
 						}
 					}
 				}
@@ -159,8 +162,8 @@ public:
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
 
-			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute);
-			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute);
+			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
+			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
 			//splitting the tree
 			current_node->left_child=left_sub_tree;
 			current_node->right_child=right_sub_tree;
@@ -169,14 +172,14 @@ public:
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
 		}
 	}
-	double id3(vector<flower>& current_data,string split_attribute,float split_val)
+	double id3(vector<flower>& current_data,int current_attribute_id,float split_val)
 	{
 		msi group_a_hash;
 		msi group_b_hash;
 		vs flower_name={"Iris-setosa","Iris-versicolor","Iris-virginica"};
 		int group_a=0,group_b=0;
 		double entrophy=0.0;
-		if(split_attribute=="start") //test
+		if(current_attribute_id==9) //test
 		{
 			for(int i=0;i<current_data.size();i++)
 			{
@@ -193,15 +196,64 @@ public:
 		{
 			for(int i=0;i<current_data.size();i++)
 			{
-				if(current_data[i].split_attribute<split_val)
+				switch(current_attribute_id)
 				{
-					group_a_hash[current_data[i].ftype]++;
-					group_a++;
-				}
-				else
-				{
-					group_b_hash[current_data[i].ftype]++;
-					group_b++;
+					case 0:
+					{
+						if(current_data[i].sepal_length<split_val)
+						{
+							group_a_hash[current_data[i].ftype]++;
+							group_a++;
+						}
+						else
+						{
+							group_b_hash[current_data[i].ftype]++;
+							group_b++;
+						}
+						break;
+					}
+					case 1:
+					{
+						if(current_data[i].sepal_width<split_val)
+						{
+							group_a_hash[current_data[i].ftype]++;
+							group_a++;
+						}
+						else
+						{
+							group_b_hash[current_data[i].ftype]++;
+							group_b++;
+						}
+						break;
+					}
+					case 2:
+					{
+						if(current_data[i].pedal_length<split_val)
+						{
+							group_a_hash[current_data[i].ftype]++;
+							group_a++;
+						}
+						else
+						{
+							group_b_hash[current_data[i].ftype]++;
+							group_b++;
+						}
+						break;
+					}
+					case 3:
+					{
+						if(current_data[i].pedal_width<split_val)
+						{
+							group_a_hash[current_data[i].ftype]++;
+							group_a++;
+						}
+						else
+						{
+							group_b_hash[current_data[i].ftype]++;
+							group_b++;
+						}
+						break;
+					}
 				}
 			}
 		}
@@ -217,35 +269,103 @@ public:
 		//group_b entrophy
 		for(int i=0;i<3;i++)
 		{
-			if(group_b[flower_name[i]])
+			if(group_b_hash[flower_name[i]])
 			{
 				entrophy-=(group_b/(group_a+group_b))*((group_b_hash[flower_name[i]]/group_b)*(log2(group_b_hash[flower_name[i]]/group_b)));
 			}
 		}
 		return (entrophy);
 	}
-	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,string split_attribute)
+	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
 	{
-		vecotr<flower> splitted_data;
+		vector<flower> splitted_data;
 		if(child_type=="left") //left<boundary
 		{
 			for(int i=0;i<current_data.size();i++)
 			{
-				if(current_data[i].split_attribute<max_ig_boundary)
+				switch(split_attribute_id)
 				{
-					splitted_data.pb(current_data[i]);
+					case 0:
+					{
+						if(current_data[i].sepal_length<max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+					case 1:
+					{
+						if(current_data[i].sepal_width<max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+					case 2:
+					{
+						if(current_data[i].pedal_length<max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+
+					}
+					case 3:
+					{
+						if(current_data[i].pedal_width<max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+
 				}
+
 			}
 		}
 		else //right>boundary
 		{
 			for(int i=0;i<current_data.size();i++)
 			{
-				if(current_data[i].split_attribute>=max_ig_boundary)
+				switch(split_attribute_id)
 				{
-					splitted_data.pb(current_data[i]);
+					case 0:
+					{
+						if(current_data[i].sepal_length>=max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+					case 1:
+					{
+						if(current_data[i].sepal_width>=max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+					case 2:
+					{
+						if(current_data[i].pedal_length>=max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+
+					}
+					case 3:
+					{
+						if(current_data[i].pedal_width>=max_ig_boundary)
+						{
+							splitted_data.pb(current_data[i]);
+						}
+						break;
+					}
+
 				}
 			}
+
 		}
 		return splitted_data;
 	}
@@ -260,35 +380,35 @@ public:
 		}
 		return true;
 	}
-	bool mycompare(flower flower_a,flower flower_b)
+	static bool mycompare(flower flower_a,flower flower_b)
 	{
-		switch(str2int(current_attribute))
+		switch(current_attribute_id)
 		{
-			case str2int("sepal_length"):
+			case 0:
 			{
 				return flower_a.sepal_length<flower_b.sepal_length;
 				break;
 			}
-			case str2int("sepal_width"):
+			case 1:
 			{
 				return flower_a.sepal_width<flower_b.sepal_width;
 				break;
 			}
-			case str2int("pedal_length"):
+			case 2:
 			{
 				return flower_a.pedal_length<flower_b.pedal_length;
 				break;
 			}
-			case str2int("pedal_width"):
+			case 3:
 			{
 				return flower_a.pedal_width<flower_b.pedal_width;
 				break;
 			}
 		}
 	}
-	constexpr unsigned int str2int(const char* str)
+	/*constexpr unsigned int str2int(const char* str)
 	{
 		int h=0;
 		return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
-	}
+	}*/
 };

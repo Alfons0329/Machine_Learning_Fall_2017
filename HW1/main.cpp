@@ -5,6 +5,6 @@ using namespace std;
 int main()
 {
     decision_tree my_decision_tree;
-    
-    exit(0);
+
+    return 0;
 }
