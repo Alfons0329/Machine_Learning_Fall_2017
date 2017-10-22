@@ -92,6 +92,10 @@ public:
 					column_cnt++;
 				}
 			}
+			for(int i=0;i<current_data.size();i++)
+			{
+				current_node->aux_table_unsorted.pb(current_data[i].ftype);
+			}
 		}
 	}
 	node* build_decision_tree(vector<flower>& current_data, node* current_node)
@@ -110,10 +114,7 @@ public:
 			//push the unsorted data back
 			float cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=0.0;
-			for(int i=0;i<current_data.size();i++)
-			{
-				current_node->aux_table_unsorted.pb(current_data[i].ftype);
-			}
+
 			//continuous data, sort each column and gain the max entrophy
 			for(int i=0;i<column_cnt;i++)
 			{
@@ -139,8 +140,8 @@ public:
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
 
-			left_sub_tree->
-			right_sub_tree->
+			left_sub_tree->current_node_data=
+			right_sub_tree->current_node_data=
 			//splitting the tree
 		}
 	}
