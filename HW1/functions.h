@@ -27,7 +27,7 @@ struct node
 };
 
 */
-#include <bits/c++.h>
+#include <bits/stdc++.h>
 #define pb push_back
 
 using namespace std;
@@ -85,23 +85,51 @@ public:
 			}
 		}
 	}
-	void build_decision_tree()
+	void build_decision_tree(float )
 	{
+
 		for(int i=0;i<column_cnt;i++)
 		{
 			//scan all columns to determine split part
-
 			for(int j=0;j<flower_data;j++)
 			{
 				so
 			}
 		}
 	}
-	double id3(vector<flower>& flower_data)
+	double id3(vector<flower>& current_data,string split_attribute,float split_val)
 	{
-		flower_data
+		msi group_a_hash;
+		msi group_b_hash;
+		vs flower_name={Iris-setosa,Iris-versicolor,Iris-virginica}
+		int group_a=0,group_b=0;
+		double entrophy=0.0f;
+		for(int i=0;i<current_data.size();i++)
+		{
+			if(current_data[i].split_attribute<split_val)
+			{
+				group_a[current_data[i].ftype]++;
+				group_a++;
+			}
+			else
+			{
+				group_b[current_data[i].ftype]++;
+				group_b++;
+			}
+		}
+		//group_a entrophy
+		for(int i=0;i<3;i++)
+		{
+			entrophy-=(group_a/(group_a+group_b))*((group_a[flower_name[i]]/group_a)*(log2(group_a[flower_name[i]]/group_a)));
+		}
+		//group_b entrophy
+		for(int i=0;i<3;i++)
+		{
+			entrophy-=(group_b/(group_a+group_b))*((group_b[flower_name[i]]/group_b)*(log2(group_b[flower_name[i]]/group_b)));
+		}
+		return (-1)*(entrophy)
 	}
-	bool is_homogeneous()
+	bool is_homogeneous() //if the data is whole homogenous, then no need to split
 	{
 		for(int i=0;i<flower_data.size()-1;i++)
 		{
@@ -111,5 +139,9 @@ public:
 			}
 		}
 		return true;
+	}
+	bool sort_compare(struct flower_a,struct flower_b,string attribute)
+	{
+		return flower_a.attribute<flower_b.attribute;
 	}
 }
