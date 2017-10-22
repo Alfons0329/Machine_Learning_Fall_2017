@@ -41,7 +41,7 @@ typedef map<string, int> msi;
 typedef vector<double> vd;
 
 unsigned int column_cnt;
-
+string current_attribute; //use for untrophy Compare function
 
 class decision_tree
 {
@@ -60,9 +60,9 @@ public:
 	{
 		string split_on;
 		bool is_leaf;
-		vi idlist;
+		vector<flower> current_node_data;
 		vector<node*> child;
-		vector<string> aux_table_unsorted
+		vector<string> aux_table_unsorted;
 	};
 	//vs splitted_attribute; //attribute that had been splitted before
 	vs attribute_name={sepal_length,sepal_width,pedal_length,pedal_width};
@@ -103,28 +103,54 @@ public:
 		else if(is_homogeneous(current_data))
 		{
 			node->is_leaf=1;
+			return current_node;
 		}
 		else
 		{
 			//push the unsorted data back
+			float cur_boundary=0.0,max_ig_boundary=0.0;
+			double cur_entrophy=0.0,max_entrophy=0.0;
 			for(int i=0;i<current_data.size();i++)
 			{
 				current_node->aux_table_unsorted.pb(current_data[i].ftype);
 			}
-
+			//continuous data, sort each column and gain the max entrophy
 			for(int i=0;i<column_cnt;i++)
 			{
+				current_attribute=attribute_name[i];
 				sort(current_data.begin(),current_data.end(),mycompare);
+				for(int current_data_row=0;current_data_row<current_data.size();current_data_row++)//check which part have changed
+				{
+					if(current_data[current_data_row].ftype!=aux_table_unsorted[i]) //see the difference, do step 3 4
+					{
+						cur_boundary=(current_data[current_data_row].attribute_name[i]+current_data[current_data_row].attribute_name[i-1])/2.0;
+						break;
+					}
+				}
+				//calculate the information gain
+				cur_entrophy=id3(current_data,cur_boundary);
+				if(cur_entrophy>max_entrophy)
+				{
+					max_entrophy=cur_entrophy;
+					max_ig_boundary=cur_boundary;
+				}
 			}
+			//new tree
+			node* left_sub_tree=new node;
+			node* right_sub_tree=new node;
+
+			left_sub_tree->
+			right_sub_tree->
+			//splitting the tree
 		}
 	}
 	double id3(vector<flower>& current_data,string split_attribute,float split_val)
 	{
 		msi group_a_hash;
 		msi group_b_hash;
-		vs flower_name={Iris-setosa,Iris-versicolor,Iris-virginica}
+		vs flower_name={Iris-setosa,Iris-versicolor,Iris-virginica};
 		int group_a=0,group_b=0;
-		double entrophy=0.0,max_entrophy=0.0;
+		double entrophy=0.0;
 		if(split_attribute=="start") //test
 		{
 			for(int i=0;i<current_data.size();i++)
@@ -173,6 +199,31 @@ public:
 		}
 		return (entrophy);
 	}
+	vector<flower> do_split(float boundary,vector<flower>& current_data,string child_type,string split_attribute)
+	{
+		vecotr<flower>splitted_data;
+		if(child_type=="left") //left<boundary
+		{
+			for(int i=0;i<current_data.size();i++)
+			{
+				if(current_data[i].split_attribute<split_val)
+				{
+					splitted_data.pb(current_data[i]);
+				}
+			}
+		}
+		else //right>boundary
+		{
+			for(int i=0;i<current_data.size();i++)
+			{
+				if(current_data[i].split_attribute>=split_val)
+				{
+					splitted_data.pb(current_data[i]);
+				}
+			}
+		}
+		return splitted_data;
+	}
 	bool is_homogeneous() //if the data is whole homogenous, then no need to split
 	{
 		for(int i=0;i<flower_data.size()-1;i++)
@@ -186,6 +237,6 @@ public:
 	}
 	bool sort_compare(struct flower_a,struct flower_b)
 	{
-		return flower_a.attribute<flower_b.attribute;
+		return flower_a.current_attribute<flower_b.current_attribute;
 	}
 }
