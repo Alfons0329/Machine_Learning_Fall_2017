@@ -29,6 +29,9 @@ struct node
 */
 #include <bits/stdc++.h>
 #define pb push_back
+using namespace std;
+
+std::ios_base::sync_with_stdio
 
 using namespace std;
 typedef vector<string> vs;
@@ -43,6 +46,10 @@ unsigned int column_cnt;
 class decision_tree
 {
 public:
+	decision_tree
+	{
+
+	}
 	struct flower
 	{
 		int id;
@@ -51,16 +58,18 @@ public:
 	};
 	struct node
 	{
-		string splitOn;
-		bool isLeaf;
+		string split_on;
+		bool is_leaf;
 		vi idlist;
 		vector<node*> child;
 		vector<string> aux_table_unsorted
 	};
-	vs splitted_attribute; //attribute that had been splitted before
+	//vs splitted_attribute; //attribute that had been splitted before
+	vs attribute_name={sepal_length,sepal_width,pedal_length,pedal_width};
 	void input_data()
 	{
 		ifstream fptr
+
 		fptr.open(FILE_NAME);
 		vector<flower>flower_data;
 		flower one_flower;
@@ -68,14 +77,14 @@ public:
 		string str;
 		while(fptr)
 		{
-	        getline(fprt,str);
+	        getline(fptr,str);
 			for(int i=0;i<str.size();i++)
 			{
 				one_flower.sepal_length=str.substr(0,3);
 				one_flower.sepal_width=str.substr(4,3);
 				one_flower.pedal_length=str.substr(8,3);
 				one_flower.sepal_width=str.substr(12,3);
-				one_flower.class=str.substr(17,str.size()-17);
+				one_flower.class=str.substr(17,str.size()-17+1);
 				one_flower.id=i;
 				flower_data.pb(one_flower);
 				if((str[i]==','||i==str.size()-1)&&i==0)
@@ -85,15 +94,27 @@ public:
 			}
 		}
 	}
-	void build_decision_tree(float )
+	node* build_decision_tree(vector<flower>& current_data, node* current_node)
 	{
-
-		for(int i=0;i<column_cnt;i++)
+		if(current_data.size()==0)
 		{
-			//scan all columns to determine split part
-			for(int j=0;j<flower_data;j++)
+			return NULL; //no need to proceed
+		}
+		else if(is_homogeneous(current_data))
+		{
+			node->is_leaf=1;
+		}
+		else
+		{
+			//push the unsorted data back
+			for(int i=0;i<current_data.size();i++)
 			{
-				so
+				current_node->aux_table_unsorted.pb(current_data[i].ftype);
+			}
+
+			for(int i=0;i<column_cnt;i++)
+			{
+				sort(current_data.begin(),current_data.end(),mycompare);
 			}
 		}
 	}
@@ -103,31 +124,54 @@ public:
 		msi group_b_hash;
 		vs flower_name={Iris-setosa,Iris-versicolor,Iris-virginica}
 		int group_a=0,group_b=0;
-		double entrophy=0.0f;
-		for(int i=0;i<current_data.size();i++)
+		double entrophy=0.0,max_entrophy=0.0;
+		if(split_attribute=="start") //test
 		{
-			if(current_data[i].split_attribute<split_val)
+			for(int i=0;i<current_data.size();i++)
 			{
-				group_a[current_data[i].ftype]++;
+				group_a_hash[current_data[i].ftype]++;
 				group_a++;
 			}
-			else
+			for(int i=0;i<flower_name;i++)
 			{
-				group_b[current_data[i].ftype]++;
-				group_b++;
+				entrophy-=((group_a[flower_name[i]]/group_a)*(log2(group_a[flower_name[i]]/group_a)));
+			}
+			return entrophy;
+		}
+		else
+		{
+			for(int i=0;i<current_data.size();i++)
+			{
+				if(current_data[i].split_attribute<split_val)
+				{
+					group_a[current_data[i].ftype]++;
+					group_a++;
+				}
+				else
+				{
+					group_b[current_data[i].ftype]++;
+					group_b++;
+				}
 			}
 		}
+
 		//group_a entrophy
 		for(int i=0;i<3;i++)
 		{
-			entrophy-=(group_a/(group_a+group_b))*((group_a[flower_name[i]]/group_a)*(log2(group_a[flower_name[i]]/group_a)));
+			if(group_a_hash[flower_name[i]])
+			{
+				entrophy-=(group_a/(group_a+group_b))*((group_a_hash[flower_name[i]]/group_a)*(log2(group_a_hash[flower_name[i]]/group_a)));
+			}
 		}
 		//group_b entrophy
 		for(int i=0;i<3;i++)
 		{
-			entrophy-=(group_b/(group_a+group_b))*((group_b[flower_name[i]]/group_b)*(log2(group_b[flower_name[i]]/group_b)));
+			if(group_b[flower_name[i]])
+			{
+				entrophy-=(group_b/(group_a+group_b))*((group_b_hash[flower_name[i]]/group_b)*(log2(group_b_hash[flower_name[i]]/group_b)));
+			}
 		}
-		return (-1)*(entrophy)
+		return (entrophy);
 	}
 	bool is_homogeneous() //if the data is whole homogenous, then no need to split
 	{
@@ -140,7 +184,7 @@ public:
 		}
 		return true;
 	}
-	bool sort_compare(struct flower_a,struct flower_b,string attribute)
+	bool sort_compare(struct flower_a,struct flower_b)
 	{
 		return flower_a.attribute<flower_b.attribute;
 	}
