@@ -62,9 +62,10 @@ public:
 		bool is_leaf;
 		vector<flower> current_node_data;
 		vector<node*> child;
-		vector<string> aux_table_unsorted;
+
 	};
 	//vs splitted_attribute; //attribute that had been splitted before
+	vector<string> aux_table_unsorted;
 	vs attribute_name={sepal_length,sepal_width,pedal_length,pedal_width};
 	void input_data()
 	{
@@ -73,7 +74,6 @@ public:
 		fptr.open(FILE_NAME);
 		vector<flower>flower_data;
 		flower one_flower;
-		column_cnt=0;
 		string str;
 		while(fptr)
 		{
@@ -84,18 +84,12 @@ public:
 				one_flower.sepal_width=str.substr(4,3);
 				one_flower.pedal_length=str.substr(8,3);
 				one_flower.sepal_width=str.substr(12,3);
-				one_flower.class=str.substr(17,str.size()-17+1);
+				one_flower.ftype=str.substr(17,str.size()-17+1);
 				one_flower.id=i;
 				flower_data.pb(one_flower);
-				if((str[i]==','||i==str.size()-1)&&i==0)
-				{
-					column_cnt++;
-				}
+				aux_table_unsorted.pb(str.substr(17,str.size()-17+1);
 			}
-			for(int i=0;i<current_data.size();i++)
-			{
-				current_node->aux_table_unsorted.pb(current_data[i].ftype);
-			}
+
 		}
 	}
 	node* build_decision_tree(vector<flower>& current_data, node* current_node)
@@ -114,35 +108,41 @@ public:
 			//push the unsorted data back
 			float cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=0.0;
-
+			string split_attribute;
 			//continuous data, sort each column and gain the max entrophy
-			for(int i=0;i<column_cnt;i++)
+			for(int i=0;i<attribute_name.size();i++)
 			{
 				current_attribute=attribute_name[i];
 				sort(current_data.begin(),current_data.end(),mycompare);
 				for(int current_data_row=0;current_data_row<current_data.size();current_data_row++)//check which part have changed
 				{
-					if(current_data[current_data_row].ftype!=aux_table_unsorted[i]) //see the difference, do step 3 4
+					if(current_data[current_data_row].ftype!=aux_table_unsorted[current_data_row]) //see the difference, do step 3 4
 					{
 						cur_boundary=(current_data[current_data_row].attribute_name[i]+current_data[current_data_row].attribute_name[i-1])/2.0;
-						break;
+						//calculate the information gain
+						cur_entrophy=id3(current_data,cur_boundary);
+						if(cur_entrophy>max_entrophy)
+						{
+							max_entrophy=cur_entrophy;
+							max_ig_boundary=cur_boundary;
+							split_attribute=current_attribute;
+						}
 					}
 				}
-				//calculate the information gain
-				cur_entrophy=id3(current_data,cur_boundary);
-				if(cur_entrophy>max_entrophy)
-				{
-					max_entrophy=cur_entrophy;
-					max_ig_boundary=cur_boundary;
-				}
+
 			}
 			//new tree
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
 
-			left_sub_tree->current_node_data=
-			right_sub_tree->current_node_data=
+			left_sub_tree->current_node_data=do_split(current_data,boundary,"left",split_attribute);
+			right_sub_tree->current_node_data=do_split(current_data,boundary,"right",split_attribute);
 			//splitting the tree
+			current_node->left_child=left_sub_tree;
+			current_node->right_child=right_sub_tree;
+
+			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
+			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
 		}
 	}
 	double id3(vector<flower>& current_data,string split_attribute,float split_val)
@@ -200,7 +200,7 @@ public:
 		}
 		return (entrophy);
 	}
-	vector<flower> do_split(float boundary,vector<flower>& current_data,string child_type,string split_attribute)
+	vector<flower> do_split(vector<flower>& current_data,float boundary,string child_type,string split_attribute)
 	{
 		vecotr<flower>splitted_data;
 		if(child_type=="left") //left<boundary
