@@ -51,6 +51,7 @@ public:
 		attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
 		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
 		id3(all_flower_data,9,0);//test
+		decision_tree_train();
 	}
 	struct flower
 	{
@@ -61,6 +62,7 @@ public:
 	struct node
 	{
 		int cur_node_split_attribute_id;
+		float cur_node_split_boundary;
 		string result_ftype;
 		bool is_leaf;
 		vector<flower> current_node_data;
@@ -165,6 +167,7 @@ public:
 			}
 			//record the current split standard
 			current_node->cur_node_split_attribute_id=split_attribute_id
+			current_node->cur_node_split_boundary=max_ig_boundary;
 			//new tree
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
@@ -426,6 +429,7 @@ public:
 		}
 		//doing k fold
 		//training test 1 0~74 for train 75~149 for validate
+		cour<<"Training set #1 \n";
 		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+74);
 		vector<flower> validate_data1 (all_flower_data.begin()+75,all_flower_data.end());
 		root->current_node_data=flower_traning_data1;
@@ -434,6 +438,7 @@ public:
 		flower_traning_data1.clear();
 		validate_data1.clear();
 		//training test 2 75~149 for train 0~74 for validate
+		cour<<"Training set #1 \n";
 		vector<flower> flower_traning_data2 (all_flower_data.begin()+75,all_flower_data.end());
 		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+74);
 		root->current_node_data=flower_traning_data2;
@@ -442,6 +447,7 @@ public:
 		flower_traning_data2.clear();
 		validate_data2.clear();
 		//training test 3 25~100 for train, rest for validate
+		cour<<"Training set #1 \n";
 		vector<flower> flower_traning_data3 (all_flower_data.begin(),all_flower_data.begin()+74);
 		vector<flower> validate_data3;
 		for(int i=0;i<all_flower_data.size();i++)
@@ -465,13 +471,85 @@ public:
 	}
 	float validate_result(vector<flower>& validate_data)
 	{
+		int tp=0,fp=0,tn=0,fn=0;
+		float precision=0.0, recall=0.0 ,acc=0.0;
+		vector<string> flower_names={Iris-setosa,Iris-virginica,Iris-versicolor};
 		string original_class,predicted_class;
-		for(int i=0;i<validate_data.size();i++)
+		for(int i=0;i<flower_names.size();i++)
 		{
-
+			for(int j=0;i<validate_data.size();i++)
+			{
+				original_class=validate_data[j].ftype;
+				predicted_class=traverse_decision_tree(root,validate_data[j]);
+				if(flower_names[i]==original_class && predicted_class==flower_names[i])//true positive
+				{
+					tp++;
+				}
+				else if(flower_names[i]!=original_class && predicted_class==flower_names[i]) //false positive
+				{
+					fp++;
+				}
+				else if(flower_names[i]=!=original_class && predicted_class!=flower_names[i])
+				{
+					tn++;
+				}
+				else if(flower_names[i]==original_class && predicted_class!=flower_names[i])
+				{
+					fn++;
+				}
+			}
+			precision+=((float)(tp))/((float)(tp+fp));
+			recall+=((float)(tp))/((float)(tp+fn));
+			acc+=((float)(tp)+tn)/((float)(tp+fp+tn+fn));
 		}
+		precision/=3.0;
+		recall/=3.0;
+		acc/=3.0;
+		cour<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 	}
-	
+	string traverse_decision_tree(node* current_node,struct one_flower)
+	{
+		string predicted_class;
+		while(!current_node->is_leaf)
+		{
+			switch(current_node->cur_node_split_attribute_id)
+			{
+				case 0:
+				{
+					if(one_flower.pedal_length<current_node->cur_node_split_boundary)
+						current_node=current_node->left_child;
+					else
+						current_node=current_node->right_child;
+					break;
+				}
+				case 1:
+				{
+					if(one_flower.pedal_width<current_node->cur_node_split_boundary)
+						current_node=current_node->left_child;
+					else
+						current_node=current_node->right_child;
+					break;
+				}
+				case 2:
+				{
+					if(one_flower.sepal_length<current_node->cur_node_split_boundary)
+						current_node=current_node->left_child;
+					else
+						current_node=current_node->right_child;
+					break;
+				}
+				case 3:
+				{
+					if(one_flower.sepal_width<current_node->cur_node_split_boundary)
+						current_node=current_node->left_child;
+					else
+						current_node=current_node->right_child;
+					break;
+				}
+			}
+		}
+		return current_node->current_node_data[0].ftype;
+	}
 
 	/*constexpr unsigned int str2int(const char* str)
 	{
