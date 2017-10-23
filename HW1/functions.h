@@ -103,14 +103,16 @@ public:
 
 		}
 	}
-	void build_decision_tree(vector<flower>& current_data, node* current_node)
+	void build_decision_tree(vector<flower> current_data, node* current_node)
 	{
 		if(current_data.size()==0)
 		{
+			//printf("IS EMPTTY NODWE \n");
 			return ; //no need to proceed
 		}
 		else if(is_homogeneous(current_data))
 		{
+			cout<<"IS HOMOGENEOUS \n";
 			current_node->is_leaf=1;
 			current_node->left_child=NULL;
 			current_node->right_child=NULL;
@@ -139,7 +141,7 @@ public:
 					cout<<current_data[i].ftype<<"   "<<aux_table_unsorted[i]<<endl;
 				}*/
 				//PAUSE;
-				for(int current_data_row=0;current_data_row<current_data.size();current_data_row++)//check which part have changed
+				for(int current_data_row=1;current_data_row<current_data.size();current_data_row++)//check which part have changed
 				{
 					if(current_data[current_data_row].ftype!=aux_table_unsorted[current_data_row]) //see the difference, do step 3 4
 					{
@@ -186,29 +188,35 @@ public:
 			//new tree
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
-			cout<<"Split with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<endl;
+			cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<endl;
 			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
 			cout<<"Left subbtree data contains\n";
 			for(int i=0;i<left_sub_tree->current_node_data.size();i++)
 			{
-				cout<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
+				cout<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
 			}
-			PAUSE;
-			cout<<"Right subtree data contains\n";
+
+
 			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
+			cout<<"Right subtree data contains\n";
 			for(int i=0;i<right_sub_tree->current_node_data.size();i++)
 			{
-				cout<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
+				cout<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
 
 			}
 
 			//splitting the tree
-			current_node->left_child=left_sub_tree;
-			current_node->right_child=right_sub_tree;
 			//cout<<"Split attributeid "<<split_attribute_id<<" max entrophy "<<max_entrophy<<"  boundary  "<<max_ig_boundary<<endl;
-
-			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
+			current_node->right_child=right_sub_tree;
+			current_node->left_child=left_sub_tree;
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
+			PAUSE;
+			cout<<"Traverse r "<<endl;
+			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
+
+
+
+
 			//cout<<"Split attributeid 555555555555555"<<split_attribute_id<<" max entrophy "<<max_entrophy<<"  boundary  "<<max_ig_boundary<<endl;
 
 		}
@@ -323,7 +331,9 @@ public:
 	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
 	{
 		vector<flower> splitted_data;
-		if(child_type=="left") //left<boundary
+		splitted_data.clear();
+		splitted_data.resize(0);
+		if(child_type=="left") //left<=boundary
 		{
 			for(int i=0;i<current_data.size();i++)
 			{
@@ -375,7 +385,7 @@ public:
 				{
 					case 0:
 					{
-						if(current_data[i].sepal_length>=max_ig_boundary)
+						if(current_data[i].sepal_length>max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -383,7 +393,7 @@ public:
 					}
 					case 1:
 					{
-						if(current_data[i].sepal_width>=max_ig_boundary)
+						if(current_data[i].sepal_width>max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -391,7 +401,7 @@ public:
 					}
 					case 2:
 					{
-						if(current_data[i].pedal_length>=max_ig_boundary)
+						if(current_data[i].pedal_length>max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -400,7 +410,7 @@ public:
 					}
 					case 3:
 					{
-						if(current_data[i].pedal_width>=max_ig_boundary)
+						if(current_data[i].pedal_width>max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -415,13 +425,21 @@ public:
 	}
 	bool is_homogeneous(vector<flower>& current_data) //if the data is whole homogenous, then no need to split
 	{
-		for(int i=0;i<current_data.size()-1;i++)
+		if(current_data.size()==1)
 		{
-			if(current_data[i].ftype!=current_data[i+1].ftype)
+			return true;
+		}
+		else
+		{
+			for(int i=0;i<current_data.size()-1;i++)
 			{
-				return false;
+				if(current_data[i].ftype!=current_data[i+1].ftype)
+				{
+					return false;
+				}
 			}
 		}
+
 		return true;
 	}
 	static bool mycompare(flower flower_a,flower flower_b)
