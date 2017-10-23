@@ -50,7 +50,7 @@ public:
 		input_data();
 		attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
 		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
-		id3(flower_data,9,0);//test
+		id3(all_flower_data,9,0);//test
 	}
 	struct flower
 	{
@@ -60,7 +60,8 @@ public:
 	};
 	struct node
 	{
-		string split_on;
+		int cur_node_split_attribute_id;
+		string result_ftype;
 		bool is_leaf;
 		vector<flower> current_node_data;
 		node* left_child;
@@ -68,8 +69,9 @@ public:
 
 	};
 	//vs splitted_attribute; //attribute that had been splitted before
+	node* root;
 	vector<string> aux_table_unsorted;
-	vector<flower>flower_data;
+	vector<flower> all_flower_data;
 	vs attribute_name;
 	vi attribute_name_id;
 	void input_data()
@@ -77,7 +79,7 @@ public:
 		ifstream fptr;
 
 		fptr.open("irisdata.txt");
-
+		cout<<"Fopen ok"<<endl;
 		flower one_flower;
 		string str;
 		while(fptr)
@@ -91,7 +93,7 @@ public:
 				one_flower.sepal_width=stof(str.substr(12,3));
 				one_flower.ftype=str.substr(17,str.size()-17+1);
 				one_flower.id=i;
-				flower_data.pb(one_flower);
+				all_flower_data.pb(one_flower);
 				aux_table_unsorted.pb(str.substr(17,str.size()-17+1));
 			}
 
@@ -106,6 +108,9 @@ public:
 		else if(is_homogeneous(current_data))
 		{
 			current_node->is_leaf=1;
+			current_node->left_child=NULL;
+			current_node->right_child=NULL;
+			current_node->result_ftype=current_data[0].ftype;
 			return current_node;
 		}
 		else
@@ -158,6 +163,8 @@ public:
 				}
 
 			}
+			//record the current split standard
+			current_node->cur_node_split_attribute_id=split_attribute_id
 			//new tree
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
@@ -274,6 +281,7 @@ public:
 				entrophy-=(group_b/(group_a+group_b))*((group_b_hash[flower_name[i]]/group_b)*(log2(group_b_hash[flower_name[i]]/group_b)));
 			}
 		}
+		cout<<"Split on current_attribute_id "<<current_attribute_id<<" entrophy is "<<entrophy<<endl;
 		return (entrophy);
 	}
 	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
@@ -406,6 +414,65 @@ public:
 			}
 		}
 	}
+	void decision_tree_train() //train3 and validate3
+	{
+		float acc1,acc2,acc3;
+		root= new* node;
+		random_shuffle(all_flower_data.begin(),all_flower_data.end());
+		cout<<"Dataset after random shuffle---------------\n";
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			cout<<all_flower_data[i].sepal_length<<" "<<all_flower_data[i].sepal_width<<" "<<all_flower_data[i].pedal_length<<" "<<all_flower_data[i].pedal_width<<" "<<all_flower_data[i].ftype<<endl;
+		}
+		//doing k fold
+		//training test 1 0~74 for train 75~149 for validate
+		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+74);
+		vector<flower> validate_data1 (all_flower_data.begin()+75,all_flower_data.end());
+		root->current_node_data=flower_traning_data1;
+		root=build_decision_tree(flower_traning_data1,root);
+		acc1=validate_result(validate_data1);
+		flower_traning_data1.clear();
+		validate_data1.clear();
+		//training test 2 75~149 for train 0~74 for validate
+		vector<flower> flower_traning_data2 (all_flower_data.begin()+75,all_flower_data.end());
+		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+74);
+		root->current_node_data=flower_traning_data2;
+		root=build_decision_tree(flower_traning_data2,root);
+		acc2=validate_result(validate_data2);
+		flower_traning_data2.clear();
+		validate_data2.clear();
+		//training test 3 25~100 for train, rest for validate
+		vector<flower> flower_traning_data3 (all_flower_data.begin(),all_flower_data.begin()+74);
+		vector<flower> validate_data3;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<24)
+			{
+				validate_data3.pb(all_flower_data[i]);
+			}
+			else if(i>99)
+			{
+				validate_data3.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data3;
+		root=build_decision_tree(flower_traning_data3,root);
+		acc3=validate_result(validate_data3);
+		flower_traning_data3.clear();
+		validate_data3.clear();
+
+		cout<<"Total accuracy: "<<(acc1+acc2+acc3)/3.0<<endl;
+	}
+	float validate_result(vector<flower>& validate_data)
+	{
+		string original_class,predicted_class;
+		for(int i=0;i<validate_data.size();i++)
+		{
+
+		}
+	}
+	
+
 	/*constexpr unsigned int str2int(const char* str)
 	{
 		int h=0;
