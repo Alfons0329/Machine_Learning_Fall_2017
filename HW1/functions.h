@@ -29,6 +29,7 @@ struct node
 */
 #include <bits/stdc++.h>
 #define pb push_back
+#define PAUSE {printf("Press Enter key to continue..."); fgetc(stdin);}
 using namespace std;
 
 
@@ -47,11 +48,7 @@ class decision_tree
 public:
 	decision_tree()
 	{
-		input_data();
-		attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
-		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
-		id3(all_flower_data,9,0);//test
-		decision_tree_train();
+
 	}
 	struct flower
 	{
@@ -74,8 +71,16 @@ public:
 	node* root;
 	vector<string> aux_table_unsorted;
 	vector<flower> all_flower_data;
-	vs attribute_name;
+	//vs attribute_name;
 	vi attribute_name_id;
+	void init()
+	{
+		input_data();
+		//attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
+		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
+		cout<<"Original Entrophy"<<id3(all_flower_data,9,0)<<endl;//test
+		decision_tree_train();
+	}
 	void input_data()
 	{
 		ifstream fptr;
@@ -84,28 +89,25 @@ public:
 		cout<<"Fopen ok"<<endl;
 		flower one_flower;
 		string str;
-		while(fptr)
+		for(int i=0;i<150;i++)
 		{
 	        getline(fptr,str);
-			for(int i=0;i<str.size();i++)
-			{
-				one_flower.sepal_length=stof(str.substr(0,3));
-				one_flower.sepal_width=stof(str.substr(4,3));
-				one_flower.pedal_length=stof(str.substr(8,3));
-				one_flower.sepal_width=stof(str.substr(12,3));
-				one_flower.ftype=str.substr(17,str.size()-17+1);
-				one_flower.id=i;
-				all_flower_data.pb(one_flower);
-				aux_table_unsorted.pb(str.substr(17,str.size()-17+1));
-			}
+			one_flower.sepal_length=stof(str.substr(0,3));
+			one_flower.sepal_width=stof(str.substr(4,3));
+			one_flower.pedal_length=stof(str.substr(8,3));
+			one_flower.pedal_width=stof(str.substr(12,3));
+			one_flower.ftype=str.substr(16,str.size()-16+1);
+			//	one_flower.id=i;
+			all_flower_data.pb(one_flower);
+			aux_table_unsorted.pb(str.substr(16,str.size()-16+1));
 
 		}
 	}
-	node* build_decision_tree(vector<flower>& current_data, node* current_node)
+	void build_decision_tree(vector<flower>& current_data, node* current_node)
 	{
 		if(current_data.size()==0)
 		{
-			return NULL; //no need to proceed
+			return ; //no need to proceed
 		}
 		else if(is_homogeneous(current_data))
 		{
@@ -113,19 +115,30 @@ public:
 			current_node->left_child=NULL;
 			current_node->right_child=NULL;
 			current_node->result_ftype=current_data[0].ftype;
-			return current_node;
+			return ;
 		}
 		else
 		{
 			//push the unsorted data back
 			float cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=0.0;
-			int split_attribute_id;
+			int split_attribute_id=0;
 			//continuous data, sort each column and gain the max entrophy
 			for(int i=0;i<attribute_name_id.size();i++)
 			{
+				aux_table_unsorted.clear();
+				for(int j=0;j<current_data.size();j++)
+				{
+					aux_table_unsorted.pb(current_data[j].ftype);
+				}
 				current_attribute_id=attribute_name_id[i];
 				sort(current_data.begin(),current_data.end(),mycompare);
+				//cout<<"Cur data sort with attname id and sort by such id"<<attribute_name_id[i];
+				/*for(int i=0;i<current_data.size();i++)
+				{
+					cout<<current_data[i].ftype<<"   "<<aux_table_unsorted[i]<<endl;
+				}*/
+				//PAUSE;
 				for(int current_data_row=0;current_data_row<current_data.size();current_data_row++)//check which part have changed
 				{
 					if(current_data[current_data_row].ftype!=aux_table_unsorted[current_data_row]) //see the difference, do step 3 4
@@ -154,6 +167,8 @@ public:
 							}
 						}
 						//calculate the information gain
+						//PAUSE;
+						//cout<<"current_attribute_id "<<current_attribute_id<<" cur_boundary " <<cur_boundary<<endl;
 						cur_entrophy=id3(current_data,current_attribute_id,cur_boundary);
 						if(cur_entrophy>max_entrophy)
 						{
@@ -166,28 +181,44 @@ public:
 
 			}
 			//record the current split standard
-			current_node->cur_node_split_attribute_id=split_attribute_id
+			current_node->cur_node_split_attribute_id=split_attribute_id;
 			current_node->cur_node_split_boundary=max_ig_boundary;
 			//new tree
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
-
+			cout<<"Split with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<endl;
 			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
+			cout<<"Left subbtree data contains\n";
+			for(int i=0;i<left_sub_tree->current_node_data.size();i++)
+			{
+				cout<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
+			}
+			PAUSE;
+			cout<<"Right subtree data contains\n";
 			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
+			for(int i=0;i<right_sub_tree->current_node_data.size();i++)
+			{
+				cout<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
+
+			}
+
 			//splitting the tree
 			current_node->left_child=left_sub_tree;
 			current_node->right_child=right_sub_tree;
+			//cout<<"Split attributeid "<<split_attribute_id<<" max entrophy "<<max_entrophy<<"  boundary  "<<max_ig_boundary<<endl;
 
 			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
+			//cout<<"Split attributeid 555555555555555"<<split_attribute_id<<" max entrophy "<<max_entrophy<<"  boundary  "<<max_ig_boundary<<endl;
+
 		}
 	}
-	double id3(vector<flower>& current_data,int current_attribute_id,float split_val)
+	double id3(vector<flower>& current_data,int current_attribute_id,float cur_boundary)
 	{
 		msi group_a_hash;
 		msi group_b_hash;
 		vs flower_name={"Iris-setosa","Iris-versicolor","Iris-virginica"};
-		int group_a=0,group_b=0;
+		int group_a=1,group_b=1;
 		double entrophy=0.0;
 		if(current_attribute_id==9) //test
 		{
@@ -198,7 +229,8 @@ public:
 			}
 			for(int i=0;i<flower_name.size();i++)
 			{
-				entrophy-=((group_a_hash[flower_name[i]]/group_a)*(log2(group_a_hash[flower_name[i]]/group_a)));
+				cout<<"Flower "<<flower_name[i]<<" has "<<group_a_hash[flower_name[i]]<<endl;
+				entrophy-=((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
 			}
 			return entrophy;
 		}
@@ -210,7 +242,7 @@ public:
 				{
 					case 0:
 					{
-						if(current_data[i].sepal_length<split_val)
+						if(current_data[i].sepal_length<=cur_boundary)
 						{
 							group_a_hash[current_data[i].ftype]++;
 							group_a++;
@@ -224,7 +256,7 @@ public:
 					}
 					case 1:
 					{
-						if(current_data[i].sepal_width<split_val)
+						if(current_data[i].sepal_width<=cur_boundary)
 						{
 							group_a_hash[current_data[i].ftype]++;
 							group_a++;
@@ -238,7 +270,7 @@ public:
 					}
 					case 2:
 					{
-						if(current_data[i].pedal_length<split_val)
+						if(current_data[i].pedal_length<=cur_boundary)
 						{
 							group_a_hash[current_data[i].ftype]++;
 							group_a++;
@@ -252,7 +284,7 @@ public:
 					}
 					case 3:
 					{
-						if(current_data[i].pedal_width<split_val)
+						if(current_data[i].pedal_width<=cur_boundary)
 						{
 							group_a_hash[current_data[i].ftype]++;
 							group_a++;
@@ -273,7 +305,7 @@ public:
 		{
 			if(group_a_hash[flower_name[i]])
 			{
-				entrophy-=(group_a/(group_a+group_b))*((group_a_hash[flower_name[i]]/group_a)*(log2(group_a_hash[flower_name[i]]/group_a)));
+				entrophy-=(group_a/(float)(group_a+group_b))*((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
 			}
 		}
 		//group_b entrophy
@@ -281,10 +313,11 @@ public:
 		{
 			if(group_b_hash[flower_name[i]])
 			{
-				entrophy-=(group_b/(group_a+group_b))*((group_b_hash[flower_name[i]]/group_b)*(log2(group_b_hash[flower_name[i]]/group_b)));
+				entrophy-=(group_b/(float)(group_a+group_b))*((group_b_hash[flower_name[i]]/(float)group_b)*(log2(group_b_hash[flower_name[i]]/(float)group_b)));
 			}
 		}
-		cout<<"Split on current_attribute_id "<<current_attribute_id<<" entrophy is "<<entrophy<<endl;
+		//cout<<"Split on current_attribute_id "<<current_attribute_id<<" entrophy is "<<entrophy<<endl;
+		////PAUSE;
 		return (entrophy);
 	}
 	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
@@ -298,7 +331,7 @@ public:
 				{
 					case 0:
 					{
-						if(current_data[i].sepal_length<max_ig_boundary)
+						if(current_data[i].sepal_length<=max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -306,7 +339,7 @@ public:
 					}
 					case 1:
 					{
-						if(current_data[i].sepal_width<max_ig_boundary)
+						if(current_data[i].sepal_width<=max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -314,7 +347,7 @@ public:
 					}
 					case 2:
 					{
-						if(current_data[i].pedal_length<max_ig_boundary)
+						if(current_data[i].pedal_length<=max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -323,7 +356,7 @@ public:
 					}
 					case 3:
 					{
-						if(current_data[i].pedal_width<max_ig_boundary)
+						if(current_data[i].pedal_width<=max_ig_boundary)
 						{
 							splitted_data.pb(current_data[i]);
 						}
@@ -393,61 +426,51 @@ public:
 	}
 	static bool mycompare(flower flower_a,flower flower_b)
 	{
-		switch(current_attribute_id)
-		{
-			case 0:
-			{
-				return flower_a.sepal_length<flower_b.sepal_length;
-				break;
-			}
-			case 1:
-			{
-				return flower_a.sepal_width<flower_b.sepal_width;
-				break;
-			}
-			case 2:
-			{
-				return flower_a.pedal_length<flower_b.pedal_length;
-				break;
-			}
-			case 3:
-			{
-				return flower_a.pedal_width<flower_b.pedal_width;
-				break;
-			}
-		}
+		if(current_attribute_id==0)
+			return flower_a.sepal_length<=flower_b.sepal_length;
+		else if(current_attribute_id==1)
+			return flower_a.sepal_width<=flower_b.sepal_width;
+		else if(current_attribute_id==2)
+			return flower_a.pedal_length<=flower_b.pedal_length;
+		else
+			return flower_a.pedal_length<=flower_b.pedal_length;
 	}
 	void decision_tree_train() //train3 and validate3
 	{
 		float acc1,acc2,acc3;
-		root= new* node;
+
 		random_shuffle(all_flower_data.begin(),all_flower_data.end());
 		cout<<"Dataset after random shuffle---------------\n";
-		for(int i=0;i<all_flower_data.size();i++)
+		/*for(int i=0;i<all_flower_data.size();i++)
 		{
 			cout<<all_flower_data[i].sepal_length<<" "<<all_flower_data[i].sepal_width<<" "<<all_flower_data[i].pedal_length<<" "<<all_flower_data[i].pedal_width<<" "<<all_flower_data[i].ftype<<endl;
-		}
+		}*/
 		//doing k fold
 		//training test 1 0~74 for train 75~149 for validate
-		cour<<"Training set #1 \n";
+		root= new node;
+		cout<<"Training set #1 \n";
 		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+74);
 		vector<flower> validate_data1 (all_flower_data.begin()+75,all_flower_data.end());
 		root->current_node_data=flower_traning_data1;
-		root=build_decision_tree(flower_traning_data1,root);
+		build_decision_tree(flower_traning_data1,root);
 		acc1=validate_result(validate_data1);
 		flower_traning_data1.clear();
 		validate_data1.clear();
+		clear_tree(root);
 		//training test 2 75~149 for train 0~74 for validate
-		cour<<"Training set #1 \n";
+		root= new node;
+		cout<<"Training set #2 \n";
 		vector<flower> flower_traning_data2 (all_flower_data.begin()+75,all_flower_data.end());
 		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+74);
 		root->current_node_data=flower_traning_data2;
-		root=build_decision_tree(flower_traning_data2,root);
+		build_decision_tree(flower_traning_data2,root);
 		acc2=validate_result(validate_data2);
 		flower_traning_data2.clear();
 		validate_data2.clear();
+		clear_tree(root);
 		//training test 3 25~100 for train, rest for validate
-		cour<<"Training set #1 \n";
+		root= new node;
+		cout<<"Training set #3 \n";
 		vector<flower> flower_traning_data3 (all_flower_data.begin(),all_flower_data.begin()+74);
 		vector<flower> validate_data3;
 		for(int i=0;i<all_flower_data.size();i++)
@@ -462,7 +485,7 @@ public:
 			}
 		}
 		root->current_node_data=flower_traning_data3;
-		root=build_decision_tree(flower_traning_data3,root);
+		build_decision_tree(flower_traning_data3,root);
 		acc3=validate_result(validate_data3);
 		flower_traning_data3.clear();
 		validate_data3.clear();
@@ -473,7 +496,7 @@ public:
 	{
 		int tp=0,fp=0,tn=0,fn=0;
 		float precision=0.0, recall=0.0 ,acc=0.0;
-		vector<string> flower_names={Iris-setosa,Iris-virginica,Iris-versicolor};
+		vector<string> flower_names={"Iris-setosa","Iris-virginica","Iris-versicolor"};
 		string original_class,predicted_class;
 		for(int i=0;i<flower_names.size();i++)
 		{
@@ -489,7 +512,7 @@ public:
 				{
 					fp++;
 				}
-				else if(flower_names[i]=!=original_class && predicted_class!=flower_names[i])
+				else if(flower_names[i]!=original_class && predicted_class!=flower_names[i])
 				{
 					tn++;
 				}
@@ -505,9 +528,9 @@ public:
 		precision/=3.0;
 		recall/=3.0;
 		acc/=3.0;
-		cour<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
+		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 	}
-	string traverse_decision_tree(node* current_node,struct one_flower)
+	string traverse_decision_tree(node* current_node,flower one_flower)
 	{
 		string predicted_class;
 		while(!current_node->is_leaf)
@@ -516,7 +539,7 @@ public:
 			{
 				case 0:
 				{
-					if(one_flower.pedal_length<current_node->cur_node_split_boundary)
+					if(one_flower.pedal_length<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -524,7 +547,7 @@ public:
 				}
 				case 1:
 				{
-					if(one_flower.pedal_width<current_node->cur_node_split_boundary)
+					if(one_flower.pedal_width<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -532,7 +555,7 @@ public:
 				}
 				case 2:
 				{
-					if(one_flower.sepal_length<current_node->cur_node_split_boundary)
+					if(one_flower.sepal_length<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -540,7 +563,7 @@ public:
 				}
 				case 3:
 				{
-					if(one_flower.sepal_width<current_node->cur_node_split_boundary)
+					if(one_flower.sepal_width<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -550,7 +573,15 @@ public:
 		}
 		return current_node->current_node_data[0].ftype;
 	}
-
+	void clear_tree(struct node* current_node)
+	{
+  		if( current_node != 0 )  // it's not
+ 		{
+			clear_tree(current_node->left_child); // it's NULL so the call does nothing
+      		clear_tree(current_node->right_child); // it's NULL so the call does nothing
+			free( current_node );  // free here
+  		}
+	}
 	/*constexpr unsigned int str2int(const char* str)
 	{
 		int h=0;
