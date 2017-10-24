@@ -436,7 +436,7 @@ public:
 
 	void decision_tree_train() //train3 and validate3
 	{
-		float acc1=0.0,acc2=0.0,acc3=0.0;
+		float acc1=0.0,acc2=0.0,acc3=0.0,acc4=0.0,acc5=0.0;
 
 		random_shuffle(all_flower_data.begin(),all_flower_data.end());
 		//doing k fold
@@ -461,15 +461,15 @@ public:
 		//training test 2 75~149 for train 0~74 for validate
 		//root= new node; no need to do
 		cout<<"Training set #2 \n";
-		vector<flower> flower_traning_data2 (all_flower_data.begin()+10,all_flower_data.begin()+130);
+		vector<flower> flower_traning_data2 (all_flower_data.begin()+5,all_flower_data.begin()+125);
 		vector<flower> validate_data2;
 		for(int i=0;i<all_flower_data.size();i++)
 		{
-			if(i<10)
+			if(i<5)
 			{
 				validate_data2.pb(all_flower_data[i]);
 			}
-			else if(i>=130)
+			else if(i>=125)
 			{
 				validate_data2.pb(all_flower_data[i]);
 			}
@@ -483,15 +483,15 @@ public:
 		//training test 3 25~100 for train, rest for validate
 		//root= new node;
 		cout<<"Training set #3 \n";
-		vector<flower> flower_traning_data3 (all_flower_data.begin()+20,all_flower_data.begin()+140);
+		vector<flower> flower_traning_data3 (all_flower_data.begin()+10,all_flower_data.begin()+130);
 		vector<flower> validate_data3;
 		for(int i=0;i<all_flower_data.size();i++)
 		{
-			if(i<20)
+			if(i<10)
 			{
 				validate_data3.pb(all_flower_data[i]);
 			}
-			else if(i>=140)
+			else if(i>=130)
 			{
 				validate_data3.pb(all_flower_data[i]);
 			}
@@ -501,8 +501,46 @@ public:
 		acc3=validate_result(validate_data3);
 		flower_traning_data3.clear();
 		validate_data3.clear();
+		clear_tree(root);
 
-		cout<<"Total accuracy: "<<(acc1+acc2+acc3)/3.0<<endl;
+		cout<<"Training set #4 \n";
+		vector<flower> flower_traning_data4 (all_flower_data.begin()+15,all_flower_data.begin()+135);
+		vector<flower> validate_data4;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<15)
+			{
+				validate_data4.pb(all_flower_data[i]);
+			}
+			else if(i>=135)
+			{
+				validate_data4.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data4;
+		build_decision_tree(flower_traning_data4,root);
+		acc4=validate_result(validate_data4);
+		flower_traning_data4.clear();
+		validate_data4.clear();
+		clear_tree(root);
+
+		cout<<"Training set #5 \n";
+		vector<flower> flower_traning_data5 (all_flower_data.begin()+30,all_flower_data.begin()+150);
+		vector<flower> validate_data5;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<30)
+			{
+				validate_data5.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data5;
+		build_decision_tree(flower_traning_data5,root);
+		acc5=validate_result(validate_data5);
+		flower_traning_data5.clear();
+		validate_data5.clear();
+		clear_tree(root);
+		cout<<"Total accuracy: "<<(acc1+acc2+acc3+acc4+acc5)/5.0<<endl;
 	}
 	float validate_result(vector<flower>& validate_data)
 	{
