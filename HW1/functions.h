@@ -13,27 +13,11 @@ Flow chart of ID3
 
 Q:Which attribute to split first?
 A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain
-
-Q: Recursive is better? since loop cannot iterate to left_child and iterate to right_child, but by using recursive, it can
-A: ??
-Then each node should contain
-struct node
-{
-	string splitOn;
-	bool isLeaf; //is homogeneous
-	vi idlist; //to store the CURRENT DATA, each time, we want to calculate the entrophy, check table
-	node* left_child, right_child
-	vector<string> aux_table_unsorted //to Compare
-};
-
 */
 #include <bits/stdc++.h>
 #define pb push_back
-#define PAUSE {printf("Press Enter key to continue..."); fgetc(stdin);}
-#define data_cnt 30
-using namespace std;
-
-
+#define PAUSE {fgetc(stdin);}
+#define data_cnt 150
 using namespace std;
 typedef vector<string> vs;
 typedef vector<vs> vvs;
@@ -47,10 +31,6 @@ int current_attribute_id; //use for untrophy Compare function
 class decision_tree
 {
 public:
-	decision_tree()
-	{
-
-	}
 	struct flower
 	{
 		int id;
@@ -85,7 +65,7 @@ public:
 	{
 		ifstream fptr;
 
-		fptr.open("irisdata2.txt");
+		fptr.open("irisdata.txt");
 		cout<<"Fopen ok"<<endl;
 		flower one_flower;
 		string str;
@@ -125,7 +105,7 @@ public:
 		{
 			//push the unsorted data back
 			float cur_boundary=0.0,max_ig_boundary=0.0;
-			double cur_entrophy=0.0,max_entrophy=0.0;
+			double cur_entrophy=0.0,max_entrophy=999.0;
 			int split_attribute_id=0;
 			//continuous data, sort each column and gain the max entrophy
 			for(int i=0;i<attribute_name_id.size();i++)
@@ -138,7 +118,6 @@ public:
 					cout<<current_data[i].ftype<<"   "<<aux_table_unsorted[i]<<endl;
 				}*/
 				//PAUSE;
-				//default something DONT FORGET!
 				for(int current_data_row=1;current_data_row<current_data.size();current_data_row++)//check which part have changed
 				{
 					if(current_data[current_data_row].ftype!=current_data[current_data_row-1].ftype) //see the difference, do step 3 4
@@ -168,10 +147,12 @@ public:
 						}
 						//calculate the information gain
 						//PAUSE;
-						//cout<<"current_attribute_id "<<current_attribute_id<<" cur_boundary " <<cur_boundary<<" entrophy"<<cur_entrophy<<endl;
 						cur_entrophy=id3(current_data,current_attribute_id,cur_boundary);
-						if(cur_entrophy>=max_entrophy)
+						//cout<<"current_attribute_id "<<current_attribute_id<<" cur_boundary " <<cur_boundary<<" entrophy"<<cur_entrophy;
+
+						if(cur_entrophy<=max_entrophy)
 						{
+							//printf(" Update min entrophy!! current boundary %f  \n	",cur_boundary);
 							max_entrophy=cur_entrophy;
 							max_ig_boundary=cur_boundary;
 							split_attribute_id=current_attribute_id;
@@ -189,27 +170,27 @@ public:
 			node* right_sub_tree=new node;
 			left_sub_tree->is_leaf=0;
 			right_sub_tree->is_leaf=0;
-			//cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<" entrophy "<<max_entrophy<<endl;
+			cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<" entrophy "<<max_entrophy<<endl;
 			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
-			/*cout<<"Left subbtree data contains\n";
+			cout<<"Left subbtree data contains:  "<<left_sub_tree->current_node_data.size()<<endl;
 			for(int i=0;i<left_sub_tree->current_node_data.size();i++)
 			{
 				cout<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
-			}*/
+			}
 
 
 			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
-			/*cout<<"Right subtree data contains\n";
+			cout<<"Right subtree data contains:  "<<right_sub_tree->current_node_data.size()<<endl;
 			for(int i=0;i<right_sub_tree->current_node_data.size();i++)
 			{
 				cout<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
 
-			}*/
+			}
 
 			//splitting the tree
 			current_node->right_child=right_sub_tree;
 			current_node->left_child=left_sub_tree;
-			//PAUSE;
+			PAUSE;
 
 			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
@@ -303,7 +284,7 @@ public:
 		//FATAL!! IF ONE PART IS NOT SPLITTED, IT IS NOT USEFUL AT ALL
 		if(group_a==0 || group_b==0)
 		{
-			return -9999.9;
+			return 999.0;
 		}
 		//group_a entrophy
 		//cout<<"ga "<<group_a<<"gb "<<group_b<<endl;
@@ -461,8 +442,8 @@ public:
 		//training test 1 0~74 for train 75~149 for validate
 		root= new node;
 		cout<<"Training set #1 \n";
-		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+14);
-		vector<flower> validate_data1 (all_flower_data.begin()+15,all_flower_data.end());
+		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+75);
+		vector<flower> validate_data1 (all_flower_data.begin()+76,all_flower_data.end());
 		root->current_node_data=flower_traning_data1;
 		build_decision_tree(flower_traning_data1,root);
 		acc1=validate_result(validate_data1);
@@ -472,8 +453,8 @@ public:
 		//training test 2 75~149 for train 0~74 for validate
 		root= new node;
 		cout<<"Training set #2 \n";
-		vector<flower> flower_traning_data2 (all_flower_data.begin()+15,all_flower_data.end());
-		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+14);
+		vector<flower> flower_traning_data2 (all_flower_data.begin()+76,all_flower_data.end());
+		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+75);
 		root->current_node_data=flower_traning_data2;
 		build_decision_tree(flower_traning_data2,root);
 		acc2=validate_result(validate_data2);
@@ -481,7 +462,7 @@ public:
 		validate_data2.clear();
 		clear_tree(root);
 		//training test 3 25~100 for train, rest for validate
-		/*root= new node;
+		root= new node;
 		cout<<"Training set #3 \n";
 		vector<flower> flower_traning_data3 (all_flower_data.begin(),all_flower_data.begin()+74);
 		vector<flower> validate_data3;
@@ -500,9 +481,9 @@ public:
 		build_decision_tree(flower_traning_data3,root);
 		acc3=validate_result(validate_data3);
 		flower_traning_data3.clear();
-		validate_data3.clear();*/
+		validate_data3.clear();
 
-		cout<<"Total accuracy: "<<(acc1+acc2+acc3)/2.0<<endl;
+		cout<<"Total accuracy: "<<(acc1+acc2+acc3)/3.0<<endl;
 	}
 	float validate_result(vector<flower>& validate_data)
 	{
@@ -537,6 +518,7 @@ public:
 			recall+=((tp))/((float)(tp+fn));
 			acc+=((tp)+tn)/((float)(tp+fp+tn+fn));
 		}
+		cout<<"tp fp tn fn"<<" "<<tp<<" "<<fp<<" "<<tn<<" "<<fn<<endl;
 		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
 	}
