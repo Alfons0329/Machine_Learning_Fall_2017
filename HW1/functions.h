@@ -170,27 +170,27 @@ public:
 			node* right_sub_tree=new node;
 			left_sub_tree->is_leaf=0;
 			right_sub_tree->is_leaf=0;
-			cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<" entrophy "<<max_entrophy<<endl;
+			//cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<" entrophy "<<max_entrophy<<endl;
 			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
-			cout<<"Left subbtree data contains:  "<<left_sub_tree->current_node_data.size()<<endl;
+			/*cout<<"Left subbtree data contains:  "<<left_sub_tree->current_node_data.size()<<endl;
 			for(int i=0;i<left_sub_tree->current_node_data.size();i++)
 			{
 				cout<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
-			}
+			}*/
 
 
 			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
-			cout<<"Right subtree data contains:  "<<right_sub_tree->current_node_data.size()<<endl;
+			/*cout<<"Right subtree data contains:  "<<right_sub_tree->current_node_data.size()<<endl;
 			for(int i=0;i<right_sub_tree->current_node_data.size();i++)
 			{
 				cout<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
 
-			}
+			}*/
 
 			//splitting the tree
 			current_node->right_child=right_sub_tree;
 			current_node->left_child=left_sub_tree;
-			PAUSE;
+			//PAUSE;
 
 			build_decision_tree(left_sub_tree->current_node_data,current_node->left_child);
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
@@ -425,14 +425,15 @@ public:
 	static bool mycompare(flower flower_a,flower flower_b)
 	{
 		if(current_attribute_id==0)
-			return flower_a.sepal_length<=flower_b.sepal_length;
+			return flower_a.sepal_length<flower_b.sepal_length;
 		else if(current_attribute_id==1)
-			return flower_a.sepal_width<=flower_b.sepal_width;
+			return flower_a.sepal_width<flower_b.sepal_width;
 		else if(current_attribute_id==2)
-			return flower_a.pedal_length<=flower_b.pedal_length;
+			return flower_a.pedal_length<flower_b.pedal_length;
 		else
-			return flower_a.pedal_length<=flower_b.pedal_length;
+			return flower_a.pedal_length<flower_b.pedal_length;
 	}
+
 	void decision_tree_train() //train3 and validate3
 	{
 		float acc1=0.0,acc2=0.0,acc3=0.0;
@@ -442,8 +443,15 @@ public:
 		//training test 1 0~74 for train 75~149 for validate
 		root= new node;
 		cout<<"Training set #1 \n";
-		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+75);
-		vector<flower> validate_data1 (all_flower_data.begin()+76,all_flower_data.end());
+		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+120);
+		vector<flower> validate_data1;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i>=120)
+			{
+				validate_data1.pb(all_flower_data[i]);
+			}
+		}
 		root->current_node_data=flower_traning_data1;
 		build_decision_tree(flower_traning_data1,root);
 		acc1=validate_result(validate_data1);
@@ -451,10 +459,21 @@ public:
 		validate_data1.clear();
 		clear_tree(root);
 		//training test 2 75~149 for train 0~74 for validate
-		root= new node;
+		//root= new node; no need to do
 		cout<<"Training set #2 \n";
-		vector<flower> flower_traning_data2 (all_flower_data.begin()+76,all_flower_data.end());
-		vector<flower> validate_data2 (all_flower_data.begin(),all_flower_data.begin()+75);
+		vector<flower> flower_traning_data2 (all_flower_data.begin()+10,all_flower_data.begin()+130);
+		vector<flower> validate_data2;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<10)
+			{
+				validate_data2.pb(all_flower_data[i]);
+			}
+			else if(i>=130)
+			{
+				validate_data2.pb(all_flower_data[i]);
+			}
+		}
 		root->current_node_data=flower_traning_data2;
 		build_decision_tree(flower_traning_data2,root);
 		acc2=validate_result(validate_data2);
@@ -462,17 +481,17 @@ public:
 		validate_data2.clear();
 		clear_tree(root);
 		//training test 3 25~100 for train, rest for validate
-		root= new node;
+		//root= new node;
 		cout<<"Training set #3 \n";
-		vector<flower> flower_traning_data3 (all_flower_data.begin(),all_flower_data.begin()+74);
+		vector<flower> flower_traning_data3 (all_flower_data.begin()+20,all_flower_data.begin()+140);
 		vector<flower> validate_data3;
 		for(int i=0;i<all_flower_data.size();i++)
 		{
-			if(i<24)
+			if(i<20)
 			{
 				validate_data3.pb(all_flower_data[i]);
 			}
-			else if(i>99)
+			else if(i>=140)
 			{
 				validate_data3.pb(all_flower_data[i]);
 			}
@@ -487,38 +506,68 @@ public:
 	}
 	float validate_result(vector<flower>& validate_data)
 	{
-		int tp=0,fp=0,tn=0,fn=0;
+		int tp=0,setosa_cnt=0,virg_cnt=0,versi_cnt=0,setosa_true=0,virg_true=0,versi_true=0,setosa_predict=0,virg_predict=0,versi_predict=0;
 		float precision=0.0, recall=0.0 ,acc=0.0;
 		vector<string> flower_names={"Iris-setosa","Iris-virginica","Iris-versicolor"};
 		string original_class,predicted_class;
-		for(int i=0;i<flower_names.size();i++)
+		//cout<<"Validation data set contains\n";
+		/*for(int i=0;i<validate_data.size();i++)//debug purpose
 		{
-			for(int j=0;i<validate_data.size();i++)
+			cout<< validate_data[i].sepal_length<<","<< validate_data[i].sepal_width<<","<< validate_data[i].pedal_length<<","<< validate_data[i].pedal_width<<","<< validate_data[i].ftype<<endl;
+		}*/
+		for(int j=0;j<validate_data.size();j++)
+		{
+			predicted_class=traverse_decision_tree(root,validate_data[j]);
+			if(predicted_class=="Iris-setosa")
 			{
-				original_class=validate_data[j].ftype;
-				predicted_class=traverse_decision_tree(root,validate_data[j]);
-				if(flower_names[i]==original_class && predicted_class==flower_names[i])//true positive
+				setosa_predict++;
+			}
+			else if(predicted_class=="Iris-virginica")
+			{
+				virg_predict++;
+			}
+			else if(predicted_class=="Iris-versicolor")
+			{
+				versi_predict++;
+			}
+		}
+		for(int j=0;j<validate_data.size();j++)
+		{
+			original_class=validate_data[j].ftype;
+			predicted_class=traverse_decision_tree(root,validate_data[j]);
+			//cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
+			if(original_class=="Iris-setosa")
+			{
+				setosa_cnt++;
+				if(original_class==predicted_class)
 				{
+					setosa_true++;
 					tp++;
 				}
-				else if(flower_names[i]!=original_class && predicted_class==flower_names[i]) //false positive
+			}
+			else if(original_class=="Iris-virginica")
+			{
+				virg_cnt++;
+				if(original_class==predicted_class)
 				{
-					fp++;
-				}
-				else if(flower_names[i]!=original_class && predicted_class!=flower_names[i])
-				{
-					tn++;
-				}
-				else if(flower_names[i]==original_class && predicted_class!=flower_names[i])
-				{
-					fn++;
+					virg_true++;
+					tp++;
 				}
 			}
-			precision+=((tp))/((float)(tp+fp));
-			recall+=((tp))/((float)(tp+fn));
-			acc+=((tp)+tn)/((float)(tp+fp+tn+fn));
+			else if(original_class=="Iris-versicolor")
+			{
+				versi_cnt++;
+				if(original_class==predicted_class)
+				{
+					versi_true++;
+					tp++;
+				}
+			}
 		}
-		cout<<"tp fp tn fn"<<" "<<tp<<" "<<fp<<" "<<tn<<" "<<fn<<endl;
+		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
+		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
+		acc=tp/((float)validate_data.size());
+		//cout<<"tp: "<<tp<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
 		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
 	}
@@ -531,7 +580,7 @@ public:
 			{
 				case 0:
 				{
-					if(one_flower.pedal_length<=current_node->cur_node_split_boundary)
+					if(one_flower.sepal_length<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -539,15 +588,15 @@ public:
 				}
 				case 1:
 				{
-					if(one_flower.pedal_width<=current_node->cur_node_split_boundary)
+					if(one_flower.sepal_width<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
 					break;
-				}
+					}
 				case 2:
 				{
-					if(one_flower.sepal_length<=current_node->cur_node_split_boundary)
+					if(one_flower.pedal_length<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
@@ -555,7 +604,7 @@ public:
 				}
 				case 3:
 				{
-					if(one_flower.sepal_width<=current_node->cur_node_split_boundary)
+					if(one_flower.pedal_width<=current_node->cur_node_split_boundary)
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
