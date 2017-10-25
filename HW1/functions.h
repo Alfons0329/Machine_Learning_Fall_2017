@@ -431,7 +431,7 @@ public:
 		else if(current_attribute_id==2)
 			return flower_a.pedal_length<flower_b.pedal_length;
 		else
-			return flower_a.pedal_length<flower_b.pedal_length;
+			return flower_a.pedal_width<flower_b.pedal_width;
 	}
 
 	void decision_tree_train() //train3 and validate3
