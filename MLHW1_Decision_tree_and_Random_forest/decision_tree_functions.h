@@ -64,7 +64,7 @@ public:
 		ifstream fptr;
 
 		fptr.open("irisdata.txt");
-		cout<<"Fopen ok"<<endl;
+		//cout<<"Fopen ok"<<endl;
 		flower one_flower;
 		string str;
 		for(int i=0;i<data_cnt;i++)
