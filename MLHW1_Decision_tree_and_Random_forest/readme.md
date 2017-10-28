@@ -21,6 +21,7 @@ https://en.wikipedia.org/wiki/Random_forest <br />
 Q:Which attribute to split first?<br />
 A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain<br />
 <br />
+
 * Extend the idea to Random Forest<br />
 0.Build an amount of decision tree, each time pick different N attribute where N<total attribute<br />
 1.Select the training data to build some amount of tree depend on the combinations of attributes selected<br />
