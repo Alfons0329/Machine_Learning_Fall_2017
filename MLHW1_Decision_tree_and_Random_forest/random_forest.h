@@ -22,13 +22,13 @@ public:
 	struct flower
 	{
 		int id;
-		float sepal_length,sepal_width,pedal_length,pedal_width;
+		double sepal_length,sepal_width,pedal_length,pedal_width;
 	    string ftype;
 	};
 	struct node
 	{
 		int cur_node_split_attribute_id;
-		float cur_node_split_boundary;
+		double cur_node_split_boundary;
 		string result_ftype;
 		bool is_leaf;
 		vector<flower> current_node_data;
@@ -90,7 +90,7 @@ public:
 		else if(current_node->is_leaf==0)
 		{
 			//push the unsorted data back
-			float cur_boundary=0.0,max_ig_boundary=0.0;
+			double cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=999.0;
 			int split_attribute_id=0;
 			//continuous data, sort each column and gain the max entrophy
@@ -170,13 +170,13 @@ public:
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
 		}
 	}
-	double id3(vector<flower>& current_data,int current_attribute_id,float cur_boundary)
+	double id3(vector<flower>& current_data,int current_attribute_id,double cur_boundary)
 	{
 		msi group_a_hash;
 		msi group_b_hash;
 		vs flower_name={"Iris-setosa","Iris-versicolor","Iris-virginica"};
 		int group_a=0,group_b=0;
-		float entrophy=0.0;
+		double entrophy=0.0;
 		if(current_attribute_id==9) //test
 		{
 			for(int i=0;i<current_data.size();i++)
@@ -186,7 +186,7 @@ public:
 			}
 			for(int i=0;i<flower_name.size();i++)
 			{
-				entrophy-=((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
+				entrophy-=((group_a_hash[flower_name[i]]/(double)group_a)*(log2(group_a_hash[flower_name[i]]/(double)group_a)));
 			}
 			return entrophy;
 		}
@@ -265,19 +265,19 @@ public:
 			if(group_a_hash[flower_name[i]])
 			{
 
-				entrophy-=(group_a/(float)(group_a+group_b))*((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
+				entrophy-=(group_a/(double)(group_a+group_b))*((group_a_hash[flower_name[i]]/(double)group_a)*(log2(group_a_hash[flower_name[i]]/(double)group_a)));
 			}
 		}
 		for(int i=0;i<3;i++)
 		{
 			if(group_b_hash[flower_name[i]])
 			{
-				entrophy-=(group_b/(float)(group_a+group_b))*((group_b_hash[flower_name[i]]/(float)group_b)*(log2(group_b_hash[flower_name[i]]/(float)group_b)));
+				entrophy-=(group_b/(double)(group_a+group_b))*((group_b_hash[flower_name[i]]/(double)group_b)*(log2(group_b_hash[flower_name[i]]/(double)group_b)));
 			}
 		}
 		return (entrophy);
 	}
-	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
+	vector<flower> do_split(vector<flower>& current_data,double max_ig_boundary,string child_type,int split_attribute_id)
 	{
 		vector<flower> splitted_data;
 		splitted_data.clear();
@@ -405,7 +405,7 @@ public:
 
 	void decision_tree_train() //train3 and validate3
 	{
-		float total_accuracy=0.0;
+		double total_accuracy=0.0;
 		random_forest_trees.resize(RANDOM_FOREST_ATTRIBUTE_COMBINATION);
 		for(int i=0;i<random_forest_trees.size();i++)
         {
@@ -417,76 +417,122 @@ public:
         vector<flower> validate_data;
 		attribute_name_id.resize(3);
         random_shuffle(all_flower_data.begin(),all_flower_data.end());
-        for(int i=0;i<random_forest_trees.size();i++)
-        {
+		//K Fold starts here
+		for(int i=0;i<5;i++)
+		{
 
-            //randomly pick half of the dataset from iris data to build the random forest
-            for(int j=0;j<all_flower_data.size();j++)
-            {
-                if(j%2)
-                    flower_training_data.pb(all_flower_data[j]);
-            }
-            //build such tree and put that root in it, randomly pick three attributes
 			switch(i)
-            {
-                case 0:
-                {
-                    attribute_name_id={0,1,2};
-                    break;
-                }
-                case 1:
-                {
-                    attribute_name_id={0,1,3};
-                    break;
-                }
-                case 2:
-                {
-                    attribute_name_id={1,2,3};
-                    break;
-                }
-                case 3:
-                {
-                    attribute_name_id={0,1,3};
-                    break;
-                }
-            }
-            build_decision_tree(flower_training_data,random_forest_trees[i]);
-            flower_training_data.clear();
-        }
-        //validate 5 times of my random_forest_trees
-        cout<<"Validate 5 validation set where the validation set is mutually exclusive from the training set \n";
-        for(int i=0;i<5;i++)
-        {
-            random_shuffle(all_flower_data.begin(),all_flower_data.end());
-            cout<<"Validating set "<<i+1<<endl;
-            for(int j=0;j<all_flower_data.size();j++)
-            {
-                if(j%2==0)
-                    validate_data.pb(all_flower_data[j]);
-
-            }
-            total_accuracy+=validate_result(validate_data);
+			{
+				case 0:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<120)
+							flower_training_data.pb(all_flower_data[j]);
+						else
+							validate_data.pb(all_flower_data[j]);
+					}
+					break;
+				}
+				case 1:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<125&&j>=5)
+							flower_training_data.pb(all_flower_data[j]);
+						else
+							validate_data.pb(all_flower_data[j]);
+					}
+					break;
+				}
+				case 2:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<130&&j>=10)
+							flower_training_data.pb(all_flower_data[j]);
+						else
+							validate_data.pb(all_flower_data[j]);
+					}
+					break;
+				}
+				case 3:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<135&&j>=15)
+							flower_training_data.pb(all_flower_data[j]);
+						else
+							validate_data.pb(all_flower_data[j]);
+					}
+					break;
+				}
+				case 4:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<140&&j>=20)
+							flower_training_data.pb(all_flower_data[j]);
+						else
+							validate_data.pb(all_flower_data[j]);
+					}
+					break;
+				}
+			}
+			cout<<"Training set #"<<i+1<<endl;
+			for(int j=0;j<random_forest_trees.size();j++)
+	        {
+	            //build such tree and put that root in it, randomly pick three attributes
+				switch(j)
+	            {
+	                case 0:
+	                {
+	                    attribute_name_id={0,1,2};
+	                    break;
+	                }
+	                case 1:
+	                {
+	                    attribute_name_id={0,1,3};
+	                    break;
+	                }
+	                case 2:
+	                {
+	                    attribute_name_id={1,2,3};
+	                    break;
+	                }
+	                case 3:
+	                {
+	                    attribute_name_id={0,1,3};
+	                    break;
+	                }
+	            }
+				//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
+				random_forest_trees[j]->is_leaf=0; //tree2 segfaluts, dont know why O_O
+	            build_decision_tree(flower_training_data,random_forest_trees[j]);
+	        }
+			total_accuracy+=validate_result(validate_data);
+			flower_training_data.clear();
 			validate_data.clear();
-        }
-        //release the memory
+		}
         for(int i=0;i<RANDOM_FOREST_ATTRIBUTE_COMBINATION;i++)
             clear_tree(random_forest_trees[i]);
 		cout<<"Total accuracy: "<<total_accuracy/5.0<<endl;
 	}
-	float validate_result(vector<flower>& validate_data)
+	double validate_result(vector<flower>& validate_data)
 	{
 		int tp=0,setosa_cnt=0,virg_cnt=0,versi_cnt=0,setosa_true=0,virg_true=0,versi_true=0,setosa_predict=0,virg_predict=0,versi_predict=0;
-		float precision=0.0, recall=0.0 ,acc=0.0;
+		double precision=0.0, recall=0.0 ,acc=0.0;
 		vector<string> flower_names={"Iris-setosa","Iris-virginica","Iris-versicolor"};
 		string original_class,predicted_class;
+
 		for(int j=0;j<validate_data.size();j++)
 		{
             //random forest vote begins at here
             int current_vote=0;
             msi random_forest_vote;
-            for(int i=0;i<RANDOM_FOREST_ATTRIBUTE_COMBINATION;i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
+            for(int i=0;i<random_forest_trees.size();i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
             {
-                random_forest_vote[traverse_decision_tree(random_forest_trees[i],validate_data[j])]++;
+				random_forest_vote[traverse_decision_tree(random_forest_trees[i],validate_data[j])]++;
             }
             predicted_class="Iris-setosa"; //default
             for(std::map<string,int>::iterator it=random_forest_vote.begin() ; it!=random_forest_vote.end();it++)
@@ -510,14 +556,16 @@ public:
 			{
 				versi_predict++;
 			}
+
 		}
+
 		for(int j=0;j<validate_data.size();j++)
 		{
 			original_class=validate_data[j].ftype;
             //random forest vote begins at here
             int current_vote=0;
             msi random_forest_vote;
-            for(int i=0;i<RANDOM_FOREST_ATTRIBUTE_COMBINATION;i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
+            for(int i=0;i<random_forest_trees.size();i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
             {
                 random_forest_vote[traverse_decision_tree(random_forest_trees[i],validate_data[j])]++;
             }
@@ -559,9 +607,9 @@ public:
 				}
 			}
 		}
-		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
-		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
-		acc=tp/((float)validate_data.size());
+		precision=((setosa_true/(double)setosa_predict)+(virg_true/(double)virg_predict)+(versi_true/(double)versi_predict))/3.0;
+		recall=((setosa_true/(double)setosa_cnt)+(virg_true/(double)virg_cnt)+(versi_true/(double)versi_cnt))/3.0;
+		acc=tp/((double)validate_data.size());
 		//cout<<"tp: "<<tp<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
 		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
@@ -569,8 +617,10 @@ public:
 	string traverse_decision_tree(node* current_node,flower one_flower)
 	{
 		string predicted_class;
+		//cout<<"Traverse at "<<current_node->is_leaf<<endl;
 		while(!current_node->is_leaf)
 		{
+			//cout<<"Traverse at inner "<<current_node<<endl;
 			switch(current_node->cur_node_split_attribute_id)
 			{
 				case 0:

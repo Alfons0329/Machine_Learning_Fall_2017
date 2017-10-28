@@ -438,8 +438,9 @@ public:
 
 		random_shuffle(all_flower_data.begin(),all_flower_data.end());
 		//doing k fold
-		//training test 1 0~74 for train 75~149 for validate
+		//training test 1
 		root= new node;
+		root->is_leaf=0;
 		cout<<"Training set #1 \n";
 		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+120);
 		vector<flower> validate_data1;
@@ -456,7 +457,7 @@ public:
 		flower_traning_data1.clear();
 		validate_data1.clear();
 		clear_tree(root);
-		//training test 2 75~149 for train 0~74 for validate
+		//training test 2
 		//root= new node; no need to do
 		cout<<"Training set #2 \n";
 		vector<flower> flower_traning_data2 (all_flower_data.begin()+5,all_flower_data.begin()+125);
@@ -478,7 +479,7 @@ public:
 		flower_traning_data2.clear();
 		validate_data2.clear();
 		clear_tree(root);
-		//training test 3 25~100 for train, rest for validate
+		//training test 3
 		//root= new node;
 		cout<<"Training set #3 \n";
 		vector<flower> flower_traning_data3 (all_flower_data.begin()+10,all_flower_data.begin()+130);
