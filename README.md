@@ -1,8 +1,8 @@
 # Machine_Learning_Fall_2017
-* Lecturer
+* Lecturer<br />
 Lectured by Yu-Tai Ching @CS NCTU Taiwan
 
-* Course Outline
+* Course Outline<br />
 1.Machine Learning for Predictive Data Analytics <br />
 2.Data to Insights to Decisions <br />
 3.Data Exploration <br />
