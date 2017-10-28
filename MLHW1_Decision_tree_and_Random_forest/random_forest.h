@@ -411,7 +411,7 @@ public:
         {
             random_forest_trees[i]=new node;
         }
-        cout<<"Building the random forest using C(4,3) attribute in the attribute list, 4 trees are built.\nThe training set is select the odd index in traning set after SRAND_RANDOM_SHUFFLE.\n";
+        cout<<"Building the random forest using C(4,3) attribute in the attribute list, 4 trees are built.\nThe training set is select the odd index in traning set.\n";
         cout<<"Each time a conbination is selected and built that tree. \n";
         vector<flower> flower_training_data;
         vector<flower> validate_data;
