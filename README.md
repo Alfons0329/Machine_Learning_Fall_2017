@@ -3,7 +3,6 @@
 Lectured by Yu-Tai Ching @CS NCTU Taiwan
 
 * Course Outline
-
 1.Machine Learning for Predictive Data Analytics <br />
 2.Data to Insights to Decisions <br />
 3.Data Exploration <br />
