@@ -18,7 +18,6 @@ https://en.wikipedia.org/wiki/Random_forest <br />
 6.take the needed data into leftchild which for example <180cm , then take all the person whose height <180cm into left child<br />
 7.If the node's data is homogenous, stop<br />
 8.the recursive algorithm is somehow like build_decision_tree(node* left_child) build_decision_tree(node* right_child) where the child is not null<br />
-
 Q:Which attribute to split first?<br />
 A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain<br />
 <br />
