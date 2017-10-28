@@ -13,7 +13,7 @@ Lectured by Yu-Tai Ching @CS NCTU Taiwan
 8.Evaluation <br />
 9.Case Study <br />
 
-* Projects(Programming Homework and Assignments)
+* Projects(Programming Homework and Assignments)<br />
 1.Decision Tree and Random Forest+ Shell script practicing / Dataset is at https://archive.ics.uci.edu/ml/datasets/iris
 
 
