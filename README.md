@@ -1,8 +1,8 @@
 # Machine_Learning_Fall_2017
-*Lecturer
+* Lecturer
 Lectured by Yu-Tai Ching @CS NCTU Taiwan
 
-*Course Outline
+* Course Outline
 
 1.Machine Learning for Predictive Data Analytics <br />
 2.Data to Insights to Decisions <br />
@@ -14,7 +14,7 @@ Lectured by Yu-Tai Ching @CS NCTU Taiwan
 8.Evaluation <br />
 9.Case Study <br />
 
-*Projects(Programming Homework and Assignments)
+* Projects(Programming Homework and Assignments)
 1.Decision Tree and Random Forest+ Shell script practicing / Dataset is at https://archive.ics.uci.edu/ml/datasets/iris
 
 
