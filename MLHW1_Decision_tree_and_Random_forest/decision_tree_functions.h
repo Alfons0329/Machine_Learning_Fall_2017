@@ -616,7 +616,7 @@ public:
 		string predicted_class;
 		while(!current_node->is_leaf)
 		{
-			//printf("Depth %d \n",depth_of_tree);
+
 			switch(current_node->cur_node_split_attribute_id)
 			{
 				case 0:
@@ -660,29 +660,32 @@ public:
 					break;
 				}
 			}
-			if(1)
+			//printf("Depth %d \n",depth_of_tree);
+			msi attribute_statistics;
+			int current_attribute_vote=0;
+			for(int i=0;i<current_node->current_node_data.size();i++)
 			{
-				msi attribute_statistics;
-				int current_attribute_vote=0;
-				for(int i=0;i<current_node->current_node_data.size();i++)
-				{
-					attribute_statistics[current_node->current_node_data[i].ftype]++;
-				}
-				for(std::map<string,int>::iterator it=attribute_statistics.begin();it!=attribute_statistics.end();it++)
-				{
-					if(it->second > current_attribute_vote)
-					{
-						predicted_class=it->first;
-						current_attribute_vote=it->second;
-					}
-
-				}
-				/*if(predicted_class==one_flower.ftype)
-				{
-					current_node->is_leaf=1;
-				}*/
-				attribute_statistics.clear();
+				attribute_statistics[current_node->current_node_data[i].ftype]++;
 			}
+			//printf("stastics \n");
+			//cout<<"Set  "<<attribute_statistics["Iris-setosa"]<<" Versi  "<<attribute_statistics["Iris-versicolor"]<<"Virginici   "<<attribute_statistics["Iris-virginica"]<<endl;
+			for(std::map<string,int>::iterator it=attribute_statistics.begin();it!=attribute_statistics.end();it++)
+			{
+				if(it->second >= current_attribute_vote)
+				{
+					predicted_class=it->first;
+					current_attribute_vote=it->second;
+				}
+				//cout<<"Vote highest "<<it->first<<" and votre num "<<current_attribute_vote<<endl;
+			}
+			//cout<<"IN class "<<one_flower.ftype<<"  ptd class   "<<predicted_class<<endl;
+
+			if(predicted_class==one_flower.ftype)
+			{
+				//cout<<"Find samc class \n";
+				//current_node->is_leaf=1;
+			}
+			attribute_statistics.clear();
 		}
 		return predicted_class;
 	}
