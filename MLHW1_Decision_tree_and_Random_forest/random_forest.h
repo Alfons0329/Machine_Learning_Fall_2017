@@ -43,7 +43,7 @@ public:
 	vi attribute_name_id;
 	void init()
 	{
-        srand(time(0));
+        //srand(time(0));
         input_data();
 		decision_tree_train();
 	}

@@ -573,7 +573,7 @@ public:
 		{
 			original_class=validate_data[j].ftype;
 			predicted_class=traverse_decision_tree(root,validate_data[j]);
-			cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
+			//cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
 			if(original_class=="Iris-setosa")
 			{
 				setosa_cnt++;
@@ -605,7 +605,7 @@ public:
 		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
 		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
 		acc=tp/((float)validate_data.size());
-		cout<<"tp: "<<tp<<","<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
+		//cout<<"tp: "<<tp<<","<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
 		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
 	}
