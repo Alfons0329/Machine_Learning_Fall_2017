@@ -43,7 +43,7 @@ public:
 	vi attribute_name_id;
 	void init()
 	{
-        //srand(time(0));
+
         input_data();
 		decision_tree_train();
 	}
@@ -405,6 +405,9 @@ public:
 
 	void decision_tree_train() //train3 and validate3
 	{
+		map<string,float> flower_recall;
+		map<string,float> flower_precision;
+
 		double total_accuracy=0.0;
 		random_forest_trees.resize(RANDOM_FOREST_ATTRIBUTE_COMBINATION);
 		for(int i=0;i<random_forest_trees.size();i++)
@@ -480,7 +483,6 @@ public:
 					break;
 				}
 			}
-			cout<<"Training set #"<<i+1<<endl;
 			for(int j=0;j<random_forest_trees.size();j++)
 	        {
 	            //build such tree and put that root in it, randomly pick three attributes
@@ -511,15 +513,18 @@ public:
 				random_forest_trees[j]->is_leaf=0; //tree2 segfaluts, dont know why O_O
 	            build_decision_tree(flower_training_data,random_forest_trees[j]);
 	        }
-			total_accuracy+=validate_result(validate_data);
+			total_accuracy+=validate_result(validate_data,flower_recall,flower_precision);
 			flower_training_data.clear();
 			validate_data.clear();
 		}
         for(int i=0;i<RANDOM_FOREST_ATTRIBUTE_COMBINATION;i++)
             clear_tree(random_forest_trees[i]);
-		cout<<"Total accuracy: "<<total_accuracy/5.0<<endl;
+		cout<<total_accuracy/5.0<<endl;
+		cout<<flower_precision["Iris-setosa"]/5.0<<" "<<flower_recall["Iris-setosa"]/5.0<<endl;
+		cout<<flower_precision["Iris-virginica"]/5.0<<" "<<flower_recall["Iris-virginica"]/5.0<<endl;
+		cout<<flower_precision["Iris-versicolor"]/5.0<<" "<<flower_recall["Iris-versicolor"]/5.0<<endl;
 	}
-	double validate_result(vector<flower>& validate_data)
+	double validate_result(vector<flower>& validate_data, map<string,float>& flower_recall, map<string,float>& flower_precision)
 	{
 		int tp=0,setosa_cnt=0,virg_cnt=0,versi_cnt=0,setosa_true=0,virg_true=0,versi_true=0,setosa_predict=0,virg_predict=0,versi_predict=0;
 		double precision=0.0, recall=0.0 ,acc=0.0;
@@ -608,11 +613,16 @@ public:
 				}
 			}
 		}
-		precision=((setosa_true/(double)setosa_predict)+(virg_true/(double)virg_predict)+(versi_true/(double)versi_predict))/3.0;
-		recall=((setosa_true/(double)setosa_cnt)+(virg_true/(double)virg_cnt)+(versi_true/(double)versi_cnt))/3.0;
+		/*precision=((setosa_true/(double)setosa_predict)+(virg_true/(double)virg_predict)+(versi_true/(double)versi_predict))/3.0;
+		recall=((setosa_true/(double)setosa_cnt)+(virg_true/(double)virg_cnt)+(versi_true/(double)versi_cnt))/3.0;*/
 		acc=tp/((double)validate_data.size());
 		//cout<<"tp: "<<tp<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
-		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
+		flower_recall["Iris-setosa"]+=(setosa_true/(float)setosa_cnt);
+		flower_recall["Iris-virginica"]+=(virg_true/(float)virg_cnt);
+		flower_recall["Iris-versicolor"]+=(versi_true/(float)versi_cnt);
+		flower_precision["Iris-setosa"]+=(setosa_true/(float)setosa_predict);
+		flower_precision["Iris-virginica"]+=(virg_true/(float)virg_predict);
+		flower_precision["Iris-versicolor"]+=(versi_true/(float)versi_predict);
 		return acc;
 	}
 	string traverse_decision_tree(node* current_node,flower one_flower)

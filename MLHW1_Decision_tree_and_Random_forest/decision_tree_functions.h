@@ -435,14 +435,15 @@ public:
 
 	void decision_tree_train() //train3 and validate3
 	{
+		map<string,float> flower_recall;
+		map<string,float> flower_precision;
 		float acc1=0.0,acc2=0.0,acc3=0.0,acc4=0.0,acc5=0.0;
-
 		random_shuffle(all_flower_data.begin(),all_flower_data.end());
 		//doing k fold
 		//training test 1
 		root= new node;
 		root->is_leaf=0;
-		cout<<"Training set #1 \n";
+		//cout<<"Training set #1 \n";
 		vector<flower> flower_training_data1;
 		vector<flower> validate_data1  (all_flower_data.begin(),all_flower_data.begin()+30);
 		for(int i=0;i<all_flower_data.size();i++)
@@ -454,13 +455,13 @@ public:
 		}
 		root->current_node_data=flower_training_data1;
 		build_decision_tree(flower_training_data1,root);
-		acc1=validate_result(validate_data1);
+		acc1=validate_result(validate_data1,flower_recall,flower_precision);
 		flower_training_data1.clear();
 		validate_data1.clear();
 		clear_tree(root);
 		//training test 2
 		//root= new node; no need to do
-		cout<<"Training set #2 \n";
+		//cout<<"Training set #2 \n";
 		vector<flower> flower_training_data2 ;
 		vector<flower> validate_data2 (all_flower_data.begin()+30,all_flower_data.begin()+60);
         for(int i=0;i<all_flower_data.size();i++)
@@ -476,13 +477,13 @@ public:
         }
 		root->current_node_data=flower_training_data2;
 		build_decision_tree(flower_training_data2,root);
-		acc2=validate_result(validate_data2);
+		acc2=validate_result(validate_data2,flower_recall,flower_precision);
 		flower_training_data2.clear();
 		validate_data2.clear();
 		clear_tree(root);
 		//training test 3
 		//root= new node;
-		cout<<"Training set #3 \n";
+		//cout<<"Training set #3 \n";
 		vector<flower> flower_training_data3 ;
 		vector<flower> validate_data3 (all_flower_data.begin()+60,all_flower_data.begin()+90);
 		for(int i=0;i<all_flower_data.size();i++)
@@ -498,12 +499,12 @@ public:
 		}
 		root->current_node_data=flower_training_data3;
 		build_decision_tree(flower_training_data3,root);
-		acc3=validate_result(validate_data3);
+		acc3=validate_result(validate_data3,flower_recall,flower_precision);
 		flower_training_data3.clear();
 		validate_data3.clear();
 		clear_tree(root);
 
-		cout<<"Training set #4 \n";
+		//cout<<"Training set #4 \n";
 		vector<flower> flower_training_data4;
 		vector<flower> validate_data4 (all_flower_data.begin()+90,all_flower_data.begin()+120);
 		for(int i=0;i<all_flower_data.size();i++)
@@ -519,12 +520,12 @@ public:
 		}
 		root->current_node_data=flower_training_data4;
 		build_decision_tree(flower_training_data4,root);
-		acc4=validate_result(validate_data4);
+		acc4=validate_result(validate_data4,flower_recall,flower_precision);
 		flower_training_data4.clear();
 		validate_data4.clear();
 		clear_tree(root);
 
-		cout<<"Training set #5 \n";
+		//cout<<"Training set #5 \n";
 		vector<flower> flower_training_data5 ;
 		vector<flower> validate_data5 (all_flower_data.begin()+120,all_flower_data.begin()+150);
 		for(int i=0;i<all_flower_data.size();i++)
@@ -536,13 +537,16 @@ public:
 		}
 		root->current_node_data=flower_training_data5;
 		build_decision_tree(flower_training_data5,root);
-		acc5=validate_result(validate_data5);
+		acc5=validate_result(validate_data5,flower_recall,flower_precision);
 		flower_training_data5.clear();
 		validate_data5.clear();
 		clear_tree(root);
-		cout<<"Total accuracy: "<<(acc1+acc2+acc3+acc4+acc5)/5.0<<endl;
+		cout<<(acc1+acc2+acc3+acc4+acc5)/5.0<<endl;
+		cout<<flower_precision["Iris-setosa"]/5.0<<" "<<flower_recall["Iris-setosa"]/5.0<<endl;
+		cout<<flower_precision["Iris-virginica"]/5.0<<" "<<flower_recall["Iris-virginica"]/5.0<<endl;
+		cout<<flower_precision["Iris-versicolor"]/5.0<<" "<<flower_recall["Iris-versicolor"]/5.0<<endl;
 	}
-	float validate_result(vector<flower>& validate_data)
+	float validate_result(vector<flower>& validate_data, map<string,float>& flower_recall, map<string,float>& flower_precision)
 	{
 		int tp=0,setosa_cnt=0,virg_cnt=0,versi_cnt=0,setosa_true=0,virg_true=0,versi_true=0,setosa_predict=0,virg_predict=0,versi_predict=0;
 		float precision=0.0, recall=0.0 ,acc=0.0;
@@ -602,11 +606,17 @@ public:
 				}
 			}
 		}
-		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
-		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
+		/*precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
+		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;*/
 		acc=tp/((float)validate_data.size());
 		//cout<<"tp: "<<tp<<","<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
-		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
+		//cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
+		flower_recall["Iris-setosa"]+=(setosa_true/(float)setosa_cnt);
+		flower_recall["Iris-virginica"]+=(virg_true/(float)virg_cnt);
+		flower_recall["Iris-versicolor"]+=(versi_true/(float)versi_cnt);
+		flower_precision["Iris-setosa"]+=(setosa_true/(float)setosa_predict);
+		flower_precision["Iris-virginica"]+=(virg_true/(float)virg_predict);
+		flower_precision["Iris-versicolor"]+=(versi_true/(float)versi_predict);
 		return acc;
 	}
 	string traverse_decision_tree(node* current_node,flower one_flower)
@@ -680,11 +690,11 @@ public:
 			}
 			//cout<<"IN class "<<one_flower.ftype<<"  ptd class   "<<predicted_class<<endl;
 
-			if(predicted_class==one_flower.ftype)
+			/*if(predicted_class==one_flower.ftype)
 			{
 				//cout<<"Find samc class \n";
 				//current_node->is_leaf=1;
-			}
+			}*/
 			attribute_statistics.clear();
 		}
 		return predicted_class;

@@ -9,18 +9,18 @@ https://en.wikipedia.org/wiki/Decision_tree <br />
 https://en.wikipedia.org/wiki/Random_forest <br />
 ## How decision tree is built
 * Normal Decision Tree<br />
-0.Store the data into the set of vector<br />
-1.Back up the original classfication table in the aux table<br />
-2.Sort according to the attribute (dosent matter which attribute will get the most information gain sinc the  )<br />
-3.If different at index then we calculate at (or say split with (value[index]+value[index-1])/2)<br />
-4.Now the table has been splitted into 2 parts, then calcculate according to the ID3 algorithm<br />
-5.We have left_child and right_child So we split , new* left_child right child, connect them parent->newchild= something<br />
-6.take the needed data into leftchild which for example <180cm , then take all the person whose height <180cm into left child<br />
-7.If the node's data is homogenous, stop<br />
-8.the recursive algorithm is somehow like build_decision_tree(node* left_child) build_decision_tree(node* right_child) where the child is not null<br />
-Q:Which attribute to split first?<br />
-A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain<br />
-<br />
+0.Store the data into the set of vector  
+1.Sort according to the attribute (dose not matter which attribute will get the most information gain since all splitting and attribute will be calculated)<br />
+2.If different at index then we calculate at (or say split with (value[index]+value[index-1])/2)<br />
+3.Now the table has been split into 2 parts, then calculate “each splitting point”according to the ID3 algorithm
+By using the std::map, we will increase the convenience to make a statistics of dataset.
+After calculating the position of splitting with LEAST ENTROPY , which means the “chaos” of data is the LEAST, then we split at such position to reduce the data inconsistency.<br />
+4.We now have left_child and right_child. We split ,and  new* left_child right child, connect them parent->newchild= something<br />
+5.take the needed data into leftchild which for example <180cm , then take all the person whose height <180cm into left child and vice versa for splitting the data set according to the current criterium.<br />
+6.If the node's data is homogeneous, stop (the node cannot be split even more).
+7.the recursive algorithm is somehow like build_decision_tree(node* left_child) build_decision_tree(node* right_child) where the child is not null<br />
+Q:Which attribute to split first?
+A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain
 
 * Extend the idea to Random Forest<br />
 0.Build an amount of decision tree, each time pick different N attribute where N<total attribute<br />
