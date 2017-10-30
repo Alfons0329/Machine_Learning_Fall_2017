@@ -55,6 +55,7 @@ public:
 	vi attribute_name_id;
 	void init()
 	{
+		srand(time(0));
 		input_data();
 		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
 		decision_tree_train();
@@ -572,7 +573,7 @@ public:
 		{
 			original_class=validate_data[j].ftype;
 			predicted_class=traverse_decision_tree(root,validate_data[j]);
-			//cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
+			cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
 			if(original_class=="Iris-setosa")
 			{
 				setosa_cnt++;
@@ -604,15 +605,18 @@ public:
 		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
 		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
 		acc=tp/((float)validate_data.size());
-		//cout<<"tp: "<<tp<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
+		cout<<"tp: "<<tp<<","<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
 		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
 	}
 	string traverse_decision_tree(node* current_node,flower one_flower)
 	{
+
+		int depth_of_tree=0;
 		string predicted_class;
 		while(!current_node->is_leaf)
 		{
+			//printf("Depth %d \n",depth_of_tree);
 			switch(current_node->cur_node_split_attribute_id)
 			{
 				case 0:
@@ -621,6 +625,8 @@ public:
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
+
+					depth_of_tree++;
 					break;
 				}
 				case 1:
@@ -629,6 +635,8 @@ public:
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
+
+					depth_of_tree++;
 					break;
 					}
 				case 2:
@@ -637,6 +645,8 @@ public:
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
+
+					depth_of_tree++;
 					break;
 				}
 				case 3:
@@ -645,11 +655,36 @@ public:
 						current_node=current_node->left_child;
 					else
 						current_node=current_node->right_child;
+
+					depth_of_tree++;
 					break;
 				}
 			}
+			if(1)
+			{
+				msi attribute_statistics;
+				int current_attribute_vote=0;
+				for(int i=0;i<current_node->current_node_data.size();i++)
+				{
+					attribute_statistics[current_node->current_node_data[i].ftype]++;
+				}
+				for(std::map<string,int>::iterator it=attribute_statistics.begin();it!=attribute_statistics.end();it++)
+				{
+					if(it->second > current_attribute_vote)
+					{
+						predicted_class=it->first;
+						current_attribute_vote=it->second;
+					}
+
+				}
+				/*if(predicted_class==one_flower.ftype)
+				{
+					current_node->is_leaf=1;
+				}*/
+				attribute_statistics.clear();
+			}
 		}
-		return current_node->current_node_data[0].ftype;
+		return predicted_class;
 	}
 	void clear_tree(struct node* current_node)
 	{
