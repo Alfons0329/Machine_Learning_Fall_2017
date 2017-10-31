@@ -420,105 +420,107 @@ public:
         //cout<<"Each time a conbination is selected and built that tree. \n";
         vector<flower> flower_training_data;
         vector<flower> validate_data;
+		vector<flower> random_forest_flower_random_data_kfold(all_flower_data.begin(),all_flower_data.end());
         random_shuffle(all_flower_data.begin(),all_flower_data.end());
 		//build random forest
-		for(int i=0;i<5;i++)
-		{
-			//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
-			switch(i)
-			{
-				case 0:
-				{
-					for(int j=0;j<120;j++)
-					{
-						if(j<24)
-						{
-							//validate_data.pb(all_flower_data[i]);
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 1:
-				{
-					for(int j=0;j<120;j++)
-					{
-						if(j<48&&j>=24)
-						{
-							//validate_data.pb(all_flower_data[i]);
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 2:
-				{
-					for(int j=0;j<120;j++)
-					{
-						if(j<72&&j>=48)
-						{
-							//validate_data.pb(all_flower_data[i]);
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 3:
-				{
-					for(int j=0;j<120;j++)
-					{
-						if(j<96&&j>=72)
-						{
-
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 4:
-				{
-					for(int j=0;j<120;j++)
-					{
-						if(j<120&&j>=96)
-						{
-							//validate_data.pb(all_flower_data[i]);
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-			}
-			//cout<<"cnt  "<<i<<endl;
-			random_forest_trees[i]->is_leaf=0; //tree2 segfaluts, dont know why O_O
-	        build_decision_tree(flower_training_data,random_forest_trees[i]);
-			flower_training_data.clear();
-			//validate_data.clear();
-		}
 		//cout<<"Validate \n";
-		for(int i=0;i<5;i++)
+		for(int kfold=0;kfold<5;kfold++)
 		{
-			switch(i)
+			random_shuffle(random_forest_flower_random_data_kfold.begin(),random_forest_flower_random_data_kfold.end());
+			for(int i=0;i<5;i++)
+			{
+				//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
+				switch(i)
+				{
+					case 0:
+					{
+						for(int j=0;j<120;j++)
+						{
+							if(j<24)
+							{
+								//validate_data.pb(all_flower_data[i]);
+							}
+							else
+							{
+								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
+							}
+						}
+						break;
+					}
+					case 1:
+					{
+						for(int j=0;j<120;j++)
+						{
+							if(j<48&&j>=24)
+							{
+								//validate_data.pb(all_flower_data[i]);
+							}
+							else
+							{
+								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
+							}
+						}
+						break;
+					}
+					case 2:
+					{
+						for(int j=0;j<120;j++)
+						{
+							if(j<72&&j>=48)
+							{
+								//validate_data.pb(all_flower_data[i]);
+							}
+							else
+							{
+								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
+							}
+						}
+						break;
+					}
+					case 3:
+					{
+						for(int j=0;j<120;j++)
+						{
+							if(j<96&&j>=72)
+							{
+
+							}
+							else
+							{
+								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
+							}
+						}
+						break;
+					}
+					case 4:
+					{
+						for(int j=0;j<120;j++)
+						{
+							if(j<120&&j>=96)
+							{
+								//validate_data.pb(all_flower_data[i]);
+							}
+							else
+							{
+								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
+							}
+						}
+						break;
+					}
+				}
+				//cout<<"cnt  "<<i<<endl;
+				random_forest_trees[i]->is_leaf=0; //tree2 segfaluts, dont know why O_O
+		        build_decision_tree(flower_training_data,random_forest_trees[i]);
+				flower_training_data.clear();
+				//validate_data.clear();
+			}
+			switch(kfold)
 			{
 				case 0:
 				{
 					for(int j=0;j<all_flower_data.size();j++)
 					{
-						if(j<20)
+						if(j<30)
 						{
 							validate_data.pb(all_flower_data[j]);
 						}
