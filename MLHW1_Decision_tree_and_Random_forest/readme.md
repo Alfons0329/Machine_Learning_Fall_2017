@@ -23,10 +23,10 @@ Q:Which attribute to split first?
 A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain
 
 * Extend the idea to Random Forest<br />
-0.Build an amount of decision tree, each time pick different N attribute where N<total attribute<br />
-1.Select the training data to build some amount of tree depend on the combinations of attributes selected<br />
-2.Traverse the forest, the highest vote for the predicted class is the<br />
-3.K Fold Cross validation still implementable<br />
+0.Build 5 decision tree where data picked from the data which require 120 training sets<br />
+1.Each tree contains 96 datasets, reason is that 120/24=5 and 120-24=96, just like the K-Fold interval for one decision tree, but now we have the subinterval for 5 trees and 24 as a count number for interval.<br />
+2.Traverse the forest, the highest vote for the predicted class is the.<br />
+3.K Fold Cross validation still implementable.<br />
 ## How to valgrind?
 * Install
 ```
