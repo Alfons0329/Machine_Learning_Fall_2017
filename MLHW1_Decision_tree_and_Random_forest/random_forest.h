@@ -429,9 +429,9 @@ public:
 			{
 				case 0:
 				{
-					for(int j=0;j<all_flower_data.size();j++)
+					for(int j=0;j<120;j++)
 					{
-						if(j<20)
+						if(j<24)
 						{
 							//validate_data.pb(all_flower_data[i]);
 						}
@@ -444,9 +444,9 @@ public:
 				}
 				case 1:
 				{
-					for(int j=0;j<all_flower_data.size();j++)
+					for(int j=0;j<120;j++)
 					{
-						if(j<60&&j>=30)
+						if(j<48&&j>=24)
 						{
 							//validate_data.pb(all_flower_data[i]);
 						}
@@ -459,9 +459,9 @@ public:
 				}
 				case 2:
 				{
-					for(int j=0;j<all_flower_data.size();j++)
+					for(int j=0;j<120;j++)
 					{
-						if(j<90&&j>=60)
+						if(j<72&&j>=48)
 						{
 							//validate_data.pb(all_flower_data[i]);
 						}
@@ -474,9 +474,9 @@ public:
 				}
 				case 3:
 				{
-					for(int j=0;j<all_flower_data.size();j++)
+					for(int j=0;j<120;j++)
 					{
-						if(j<120&&j>=90)
+						if(j<96&&j>=72)
 						{
 
 						}
@@ -489,9 +489,9 @@ public:
 				}
 				case 4:
 				{
-					for(int j=0;j<all_flower_data.size();j++)
+					for(int j=0;j<120;j++)
 					{
-						if(j<150&&j>=120)
+						if(j<120&&j>=96)
 						{
 							//validate_data.pb(all_flower_data[i]);
 						}
