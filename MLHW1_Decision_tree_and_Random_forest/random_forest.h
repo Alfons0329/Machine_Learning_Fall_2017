@@ -508,7 +508,6 @@ public:
 			}
 			for(int i=0;i<RANDOM_FOREST_TREE_CNT;i++)
 			{
-				random_shuffle(flower_training_data.begin(),flower_training_data.end());
 				//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
 				switch(i)
 				{
