@@ -6,6 +6,7 @@ Modify the source code from decision_tree_functions.h, each time split different
 #define PAUSE {fgetc(stdin);}
 #define data_cnt 150
 #define RANDOM_FOREST_ATTRIBUTE_COMBINATION 4
+#define RANDOM_FOREST_TREE_CNT 5
 using namespace std;
 typedef vector<string> vs;
 typedef vector<vs> vvs;
@@ -410,8 +411,8 @@ public:
 		map<string,float> flower_precision;
 
 		double total_accuracy=0.0;
-		random_forest_trees.resize(5);
-		for(int i=0;i<random_forest_trees.size();i++)
+		random_forest_trees.resize(RANDOM_FOREST_TREE_CNT);
+		for(int i=0;i<RANDOM_FOREST_TREE_CNT;i++)
         {
             random_forest_trees[i]=new node;
         }
@@ -426,9 +427,88 @@ public:
 		//cout<<"Validate \n";
 		for(int kfold=0;kfold<5;kfold++)
 		{
-			random_shuffle(random_forest_flower_random_data_kfold.begin(),random_forest_flower_random_data_kfold.end());
-			for(int i=0;i<5;i++)
+
+			switch(kfold)
 			{
+				case 0:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<30)
+						{
+							validate_data.pb(all_flower_data[j]);
+						}
+						else
+						{
+							flower_training_data.pb(all_flower_data[j]);
+						}
+					}
+					break;
+				}
+				case 1:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<60&&j>=30)
+						{
+							validate_data.pb(all_flower_data[j]);
+						}
+						else
+						{
+							flower_training_data.pb(all_flower_data[j]);
+						}
+					}
+					break;
+				}
+				case 2:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<90&&j>=60)
+						{
+							validate_data.pb(all_flower_data[j]);
+						}
+						else
+						{
+							flower_training_data.pb(all_flower_data[j]);
+						}
+					}
+					break;
+				}
+				case 3:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<120&&j>=90)
+						{
+							validate_data.pb(all_flower_data[j]);
+						}
+						else
+						{
+							flower_training_data.pb(all_flower_data[j]);
+						}
+					}
+					break;
+				}
+				case 4:
+				{
+					for(int j=0;j<all_flower_data.size();j++)
+					{
+						if(j<150&&j>=120)
+						{
+							validate_data.pb(all_flower_data[j]);
+						}
+						else
+						{
+							flower_training_data.pb(all_flower_data[j]);
+						}
+					}
+					break;
+				}
+			}
+			for(int i=0;i<RANDOM_FOREST_TREE_CNT;i++)
+			{
+				random_shuffle(flower_training_data.begin(),flower_training_data.end());
 				//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
 				switch(i)
 				{
@@ -511,69 +591,13 @@ public:
 				//cout<<"cnt  "<<i<<endl;
 				random_forest_trees[i]->is_leaf=0; //tree2 segfaluts, dont know why O_O
 		        build_decision_tree(flower_training_data,random_forest_trees[i]);
-				flower_training_data.clear();
+				//flower_training_data.clear();
 				//validate_data.clear();
 			}
-			switch(kfold)
-			{
-				case 0:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<30)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 1:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<60&&j>=30)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 2:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<90&&j>=60)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 3:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<120&&j>=90)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 4:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<150&&j>=120)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-			}
+
 			total_accuracy+=validate_result(validate_data,flower_recall,flower_precision);
 			validate_data.clear();
+			flower_training_data.clear();
 		}
         for(int i=0;i<5;i++)
             clear_tree(random_forest_trees[i]);
