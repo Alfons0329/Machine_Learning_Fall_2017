@@ -1,12 +1,23 @@
 /*
-Modify the source code from decision_tree_functions.h, each time split different attribute to train , train about 4 tree using Combination from C(4,3) of features
+Flow chart of ID3
+0.Store the data into the set of vector
+1.Back up the original classfication table in the aux table
+2.Sort according to the attribute (dosent matter which attribute will get the most information gain sinc the  )
+3.Compare with the original table if different at index then we calculate at (or say split with (value[index]+value[index-1])/2)
+4.Now the table has been splitted into 2 parts, then calcculate according to the ID3 algorithm
+5.We have left_child and right_child So we split , new* left_child right child, connect them parent->newchild= something
+6.take the needed data into leftchild which for example <180cm , then take all the person whose height <180cm into left child
+7.If the node's data is homogenous, stop
+8. still back up the aux table of original classfication and thus we can do step 2 3
+9.the recursive algorithm is somehow like build_decision_tree(node* left_child) build_decision_tree(node* right_child) where the child is not null
+
+Q:Which attribute to split first?
+A:Doesnt matter, what matters is the boundary we split, the boundary has to bring us the most information gain
 */
 #include <bits/stdc++.h>
 #define pb push_back
 #define PAUSE {fgetc(stdin);}
 #define data_cnt 150
-#define RANDOM_FOREST_ATTRIBUTE_COMBINATION 4
-#define RANDOM_FOREST_TREE_CNT 5
 using namespace std;
 typedef vector<string> vs;
 typedef vector<vs> vvs;
@@ -17,19 +28,19 @@ typedef vector<double> vd;
 unsigned int column_cnt;
 int current_attribute_id; //use for untrophy Compare function
 
-class random_forest
+class decision_tree
 {
 public:
 	struct flower
 	{
 		int id;
-		double sepal_length,sepal_width,pedal_length,pedal_width;
+		float sepal_length,sepal_width,pedal_length,pedal_width;
 	    string ftype;
 	};
 	struct node
 	{
 		int cur_node_split_attribute_id;
-		double cur_node_split_boundary;
+		float cur_node_split_boundary;
 		string result_ftype;
 		bool is_leaf;
 		vector<flower> current_node_data;
@@ -38,15 +49,16 @@ public:
 
 	};
 	//vs splitted_attribute; //attribute that had been splitted before
-	vector<node*> random_forest_trees;
+	node* root;
 	vector<flower> all_flower_data;
 	//vs attribute_name;
 	vi attribute_name_id;
 	void init()
 	{
-		srand(time(0));
-        input_data();
-		attribute_name_id={0,1,2,3};
+		input_data();
+		//attribute_name={"sepal_length","sepal_width","pedal_length","pedal_width"};
+		attribute_name_id={0,1,2,3}; //since switch case string is unable to use nor is the constexpr method
+		//cout<<"Original Entrophy"<<id3(all_flower_data,9,0)<<endl;//test
 		decision_tree_train();
 	}
 	void input_data()
@@ -54,7 +66,7 @@ public:
 		ifstream fptr;
 
 		fptr.open("irisdata.txt");
-		//cout<<"Fopen ok"<<endl;
+		cout<<"Fopen ok"<<endl;
 		flower one_flower;
 		string str;
 		for(int i=0;i<data_cnt;i++)
@@ -92,7 +104,7 @@ public:
 		else if(current_node->is_leaf==0)
 		{
 			//push the unsorted data back
-			double cur_boundary=0.0,max_ig_boundary=0.0;
+			float cur_boundary=0.0,max_ig_boundary=0.0;
 			double cur_entrophy=0.0,max_entrophy=999.0;
 			int split_attribute_id=0;
 			//continuous data, sort each column and gain the max entrophy
@@ -156,12 +168,24 @@ public:
 
 			node* left_sub_tree=new node;
 			node* right_sub_tree=new node;
-
 			left_sub_tree->is_leaf=0;
 			right_sub_tree->is_leaf=0;
-
+			//cout<<"\nSplit with "<<split_attribute_id<<" which has boundary "<<max_ig_boundary<<" entrophy "<<max_entrophy<<endl;
 			left_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"left",split_attribute_id);
-		    right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
+			/*cout<<"Left subbtree data contains:  "<<left_sub_tree->current_node_data.size()<<endl;
+			for(int i=0;i<left_sub_tree->current_node_data.size();i++)
+			{
+				cout<<left_sub_tree->current_node_data[i].sepal_length<<"|"<<left_sub_tree->current_node_data[i].sepal_width<<"|"<<left_sub_tree->current_node_data[i].pedal_length<<"|"<<left_sub_tree->current_node_data[i].pedal_width<<"|"<<left_sub_tree->current_node_data[i].ftype<<endl;
+			}*/
+
+
+			right_sub_tree->current_node_data=do_split(current_data,max_ig_boundary,"right",split_attribute_id);
+			/*cout<<"Right subtree data contains:  "<<right_sub_tree->current_node_data.size()<<endl;
+			for(int i=0;i<right_sub_tree->current_node_data.size();i++)
+			{
+				cout<<right_sub_tree->current_node_data[i].sepal_length<<"|"<<right_sub_tree->current_node_data[i].sepal_width<<"|"<<right_sub_tree->current_node_data[i].pedal_length<<"|"<<right_sub_tree->current_node_data[i].pedal_width<<"|"<<right_sub_tree->current_node_data[i].ftype<<endl;
+
+			}*/
 
 			//splitting the tree
 			current_node->right_child=right_sub_tree;
@@ -172,13 +196,13 @@ public:
 			build_decision_tree(right_sub_tree->current_node_data,current_node->right_child);
 		}
 	}
-	double id3(vector<flower>& current_data,int current_attribute_id,double cur_boundary)
+	double id3(vector<flower>& current_data,int current_attribute_id,float cur_boundary)
 	{
 		msi group_a_hash;
 		msi group_b_hash;
 		vs flower_name={"Iris-setosa","Iris-versicolor","Iris-virginica"};
 		int group_a=0,group_b=0;
-		double entrophy=0.0;
+		float entrophy=0.0;
 		if(current_attribute_id==9) //test
 		{
 			for(int i=0;i<current_data.size();i++)
@@ -188,7 +212,7 @@ public:
 			}
 			for(int i=0;i<flower_name.size();i++)
 			{
-				entrophy-=((group_a_hash[flower_name[i]]/(double)group_a)*(log2(group_a_hash[flower_name[i]]/(double)group_a)));
+				entrophy-=((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
 			}
 			return entrophy;
 		}
@@ -257,29 +281,34 @@ public:
 				}
 			}
 		}
+		//FATAL!! IF ONE PART IS NOT SPLITTED, IT IS NOT USEFUL AT ALL
 		if(group_a==0 || group_b==0)
 		{
 			return 999.0;
 		}
 		//group_a entrophy
+		//cout<<"ga "<<group_a<<"gb "<<group_b<<endl;
 		for(int i=0;i<3;i++)
 		{
 			if(group_a_hash[flower_name[i]])
 			{
-
-				entrophy-=(group_a/(double)(group_a+group_b))*((group_a_hash[flower_name[i]]/(double)group_a)*(log2(group_a_hash[flower_name[i]]/(double)group_a)));
+				//cout<<"flower a"<<group_a_hash[flower_name[i]]<<endl;
+				entrophy-=(group_a/(float)(group_a+group_b))*((group_a_hash[flower_name[i]]/(float)group_a)*(log2(group_a_hash[flower_name[i]]/(float)group_a)));
 			}
 		}
+		//group_b entrophy
 		for(int i=0;i<3;i++)
 		{
 			if(group_b_hash[flower_name[i]])
 			{
-				entrophy-=(group_b/(double)(group_a+group_b))*((group_b_hash[flower_name[i]]/(double)group_b)*(log2(group_b_hash[flower_name[i]]/(double)group_b)));
+				entrophy-=(group_b/(float)(group_a+group_b))*((group_b_hash[flower_name[i]]/(float)group_b)*(log2(group_b_hash[flower_name[i]]/(float)group_b)));
 			}
 		}
+		//cout<<"Split on current_attribute_id "<<current_attribute_id<<" entrophy is "<<entrophy<<endl;
+		////PAUSE;
 		return (entrophy);
 	}
-	vector<flower> do_split(vector<flower>& current_data,double max_ig_boundary,string child_type,int split_attribute_id)
+	vector<flower> do_split(vector<flower>& current_data,float max_ig_boundary,string child_type,int split_attribute_id)
 	{
 		vector<flower> splitted_data;
 		splitted_data.clear();
@@ -407,235 +436,126 @@ public:
 
 	void decision_tree_train() //train3 and validate3
 	{
-		map<string,float> flower_recall;
-		map<string,float> flower_precision;
+		float acc1=0.0,acc2=0.0,acc3=0.0,acc4=0.0,acc5=0.0;
 
-		double total_accuracy=0.0;
-		random_forest_trees.resize(RANDOM_FOREST_TREE_CNT);
-		for(int i=0;i<RANDOM_FOREST_TREE_CNT;i++)
-        {
-            random_forest_trees[i]=new node;
-        }
-		cout<<"Random forest: \n";
-        //cout<<"Building the random forest using C(4,3) attribute in the attribute list, 4 trees are built.\nThe training set is select the odd index in traning set.\n";
-        //cout<<"Each time a conbination is selected and built that tree. \n";
-        vector<flower> flower_training_data;
-        vector<flower> validate_data;
-		vector<flower> random_forest_flower_random_data_kfold;
-        random_shuffle(all_flower_data.begin(),all_flower_data.end());
-		//build random forest
-		//cout<<"Validate \n";
-		for(int kfold=0;kfold<5;kfold++)
+		random_shuffle(all_flower_data.begin(),all_flower_data.end());
+		//doing k fold
+		//training test 1 0~74 for train 75~149 for validate
+		root= new node;
+		cout<<"Training set #1 \n";
+		vector<flower> flower_traning_data1 (all_flower_data.begin(),all_flower_data.begin()+120);
+		vector<flower> validate_data1;
+		for(int i=0;i<all_flower_data.size();i++)
 		{
-
-			switch(kfold)
+			if(i>=120)
 			{
-				case 0:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<30)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-						else
-						{
-							random_forest_flower_random_data_kfold.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 1:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<60&&j>=30)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-						else
-						{
-							random_forest_flower_random_data_kfold.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 2:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<90&&j>=60)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-						else
-						{
-							random_forest_flower_random_data_kfold.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 3:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<120&&j>=90)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-						else
-						{
-							random_forest_flower_random_data_kfold.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
-				case 4:
-				{
-					for(int j=0;j<all_flower_data.size();j++)
-					{
-						if(j<150&&j>=120)
-						{
-							validate_data.pb(all_flower_data[j]);
-						}
-						else
-						{
-							flower_training_data.pb(all_flower_data[j]);
-						}
-					}
-					break;
-				}
+				validate_data1.pb(all_flower_data[i]);
 			}
-            for(int i=0;i<random_forest_trees,size();i++)
-            {
-                
-            }
-			for(int i=0;i<RANDOM_FOREST_TREE_CNT;i++)
-			{
-				//cout<<"tr size "<<flower_training_data.size()<<" va size "<<validate_data.size()<<endl;
-				switch(i)
-				{
-					case 0:
-					{
-						for(int j=0;j<120;j++)
-						{
-							if(j<24)
-							{
-								//validate_data.pb(all_flower_data[i]);
-							}
-							else
-							{
-								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
-							}
-						}
-						break;
-					}
-					case 1:
-					{
-						for(int j=0;j<120;j++)
-						{
-							if(j<48&&j>=24)
-							{
-								//validate_data.pb(all_flower_data[i]);
-							}
-							else
-							{
-								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
-							}
-						}
-						break;
-					}
-					case 2:
-					{
-						for(int j=0;j<120;j++)
-						{
-							if(j<72&&j>=48)
-							{
-								//validate_data.pb(all_flower_data[i]);
-							}
-							else
-							{
-								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
-							}
-						}
-						break;
-					}
-					case 3:
-					{
-						for(int j=0;j<120;j++)
-						{
-							if(j<96&&j>=72)
-							{
-
-							}
-							else
-							{
-								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
-							}
-						}
-						break;
-					}
-					case 4:
-					{
-						for(int j=0;j<120;j++)
-						{
-							if(j<120&&j>=96)
-							{
-								//validate_data.pb(all_flower_data[i]);
-							}
-							else
-							{
-								flower_training_data.pb(random_forest_flower_random_data_kfold[j]);
-							}
-						}
-						break;
-					}
-				}
-				//cout<<"cnt  "<<i<<endl;
-				random_forest_trees[i]->is_leaf=0; //tree2 segfaluts, dont know why O_O
-		        build_decision_tree(flower_training_data,random_forest_trees[i]);
-				//flower_training_data.clear();
-				//validate_data.clear();
-			}
-
-			total_accuracy+=validate_result(validate_data,flower_recall,flower_precision);
-			validate_data.clear();
-			flower_training_data.clear();
-			random_forest_flower_random_data_kfold.clear();
 		}
-        for(int i=0;i<5;i++)
-            clear_tree(random_forest_trees[i]);
-		cout<<total_accuracy/5.0<<endl;
-		cout<<flower_precision["Iris-setosa"]/5.0<<" "<<flower_recall["Iris-setosa"]/5.0<<endl;
-		cout<<flower_precision["Iris-virginica"]/5.0<<" "<<flower_recall["Iris-virginica"]/5.0<<endl;
-		cout<<flower_precision["Iris-versicolor"]/5.0<<" "<<flower_recall["Iris-versicolor"]/5.0<<endl;
+		root->current_node_data=flower_traning_data1;
+		build_decision_tree(flower_traning_data1,root);
+		acc1=validate_result(validate_data1);
+		flower_traning_data1.clear();
+		validate_data1.clear();
+		clear_tree(root);
+		//training test 2 75~149 for train 0~74 for validate
+		//root= new node; no need to do
+		cout<<"Training set #2 \n";
+		vector<flower> flower_traning_data2 (all_flower_data.begin()+5,all_flower_data.begin()+125);
+		vector<flower> validate_data2;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<5)
+			{
+				validate_data2.pb(all_flower_data[i]);
+			}
+			else if(i>=125)
+			{
+				validate_data2.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data2;
+		build_decision_tree(flower_traning_data2,root);
+		acc2=validate_result(validate_data2);
+		flower_traning_data2.clear();
+		validate_data2.clear();
+		clear_tree(root);
+		//training test 3 25~100 for train, rest for validate
+		//root= new node;
+		cout<<"Training set #3 \n";
+		vector<flower> flower_traning_data3 (all_flower_data.begin()+10,all_flower_data.begin()+130);
+		vector<flower> validate_data3;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<10)
+			{
+				validate_data3.pb(all_flower_data[i]);
+			}
+			else if(i>=130)
+			{
+				validate_data3.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data3;
+		build_decision_tree(flower_traning_data3,root);
+		acc3=validate_result(validate_data3);
+		flower_traning_data3.clear();
+		validate_data3.clear();
+		clear_tree(root);
+
+		cout<<"Training set #4 \n";
+		vector<flower> flower_traning_data4 (all_flower_data.begin()+15,all_flower_data.begin()+135);
+		vector<flower> validate_data4;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<15)
+			{
+				validate_data4.pb(all_flower_data[i]);
+			}
+			else if(i>=135)
+			{
+				validate_data4.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data4;
+		build_decision_tree(flower_traning_data4,root);
+		acc4=validate_result(validate_data4);
+		flower_traning_data4.clear();
+		validate_data4.clear();
+		clear_tree(root);
+
+		cout<<"Training set #5 \n";
+		vector<flower> flower_traning_data5 (all_flower_data.begin()+30,all_flower_data.begin()+150);
+		vector<flower> validate_data5;
+		for(int i=0;i<all_flower_data.size();i++)
+		{
+			if(i<30)
+			{
+				validate_data5.pb(all_flower_data[i]);
+			}
+		}
+		root->current_node_data=flower_traning_data5;
+		build_decision_tree(flower_traning_data5,root);
+		acc5=validate_result(validate_data5);
+		flower_traning_data5.clear();
+		validate_data5.clear();
+		clear_tree(root);
+		cout<<"Total accuracy: "<<(acc1+acc2+acc3+acc4+acc5)/5.0<<endl;
 	}
-	double validate_result(vector<flower>& validate_data, map<string,float>& flower_recall, map<string,float>& flower_precision)
+	float validate_result(vector<flower>& validate_data)
 	{
 		int tp=0,setosa_cnt=0,virg_cnt=0,versi_cnt=0,setosa_true=0,virg_true=0,versi_true=0,setosa_predict=0,virg_predict=0,versi_predict=0;
-		double precision=0.0, recall=0.0 ,acc=0.0;
+		float precision=0.0, recall=0.0 ,acc=0.0;
 		vector<string> flower_names={"Iris-setosa","Iris-virginica","Iris-versicolor"};
 		string original_class,predicted_class;
-
+		//cout<<"Validation data set contains\n";
+		/*for(int i=0;i<validate_data.size();i++)//debug purpose
+		{
+			cout<< validate_data[i].sepal_length<<","<< validate_data[i].sepal_width<<","<< validate_data[i].pedal_length<<","<< validate_data[i].pedal_width<<","<< validate_data[i].ftype<<endl;
+		}*/
 		for(int j=0;j<validate_data.size();j++)
 		{
-            //random forest vote begins at here
-            int current_vote=0;
-            msi random_forest_vote;
-            for(int i=0;i<random_forest_trees.size();i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
-            {
-				random_forest_vote[traverse_decision_tree(random_forest_trees[i],validate_data[j])]++;
-            }
-            predicted_class="Iris-setosa"; //default
-            for(std::map<string,int>::iterator it=random_forest_vote.begin() ; it!=random_forest_vote.end();it++)
-            {
-                if(it->second>current_vote)
-                {
-                    current_vote=it->second;
-                    predicted_class=it->first;
-                }
-            }
-            //random forest vote ends at here
+			predicted_class=traverse_decision_tree(root,validate_data[j]);
 			if(predicted_class=="Iris-setosa")
 			{
 				setosa_predict++;
@@ -648,29 +568,12 @@ public:
 			{
 				versi_predict++;
 			}
-
 		}
-
 		for(int j=0;j<validate_data.size();j++)
 		{
 			original_class=validate_data[j].ftype;
-            //random forest vote begins at here
-            int current_vote=0;
-            msi random_forest_vote;
-            for(int i=0;i<random_forest_trees.size();i++)//traverse 4 different trees and find the highest vote, that is the predicted_class
-            {
-                random_forest_vote[traverse_decision_tree(random_forest_trees[i],validate_data[j])]++;
-            }
-            predicted_class="Iris-setosa"; //default
-            for(std::map<string,int>::iterator it=random_forest_vote.begin() ; it!=random_forest_vote.end();it++)
-            {
-                if(it->second>current_vote)
-                {
-                    current_vote=it->second;
-                    predicted_class=it->first;
-                }
-            }
-            //random forest vote ends at here
+			predicted_class=traverse_decision_tree(root,validate_data[j]);
+			//cout<<"Original class "<<original_class<<" Predicted class "<<predicted_class<<endl;
 			if(original_class=="Iris-setosa")
 			{
 				setosa_cnt++;
@@ -699,25 +602,18 @@ public:
 				}
 			}
 		}
-		/*precision=((setosa_true/(double)setosa_predict)+(virg_true/(double)virg_predict)+(versi_true/(double)versi_predict))/3.0;
-		recall=((setosa_true/(double)setosa_cnt)+(virg_true/(double)virg_cnt)+(versi_true/(double)versi_cnt))/3.0;*/
-		acc=tp/((double)validate_data.size());
+		precision=((setosa_true/(float)setosa_predict)+(virg_true/(float)virg_predict)+(versi_true/(float)versi_predict))/3.0;
+		recall=((setosa_true/(float)setosa_cnt)+(virg_true/(float)virg_cnt)+(versi_true/(float)versi_cnt))/3.0;
+		acc=tp/((float)validate_data.size());
 		//cout<<"tp: "<<tp<<setosa_cnt<<","<<virg_cnt<<","<<versi_cnt<<","<<setosa_true<<","<<virg_true<<","<<versi_true<<","<<setosa_predict<<","<<virg_predict<<","<<versi_predict<<endl;
-		flower_recall["Iris-setosa"]+=(setosa_true/(float)setosa_cnt);
-		flower_recall["Iris-virginica"]+=(virg_true/(float)virg_cnt);
-		flower_recall["Iris-versicolor"]+=(versi_true/(float)versi_cnt);
-		flower_precision["Iris-setosa"]+=(setosa_true/(float)setosa_predict);
-		flower_precision["Iris-virginica"]+=(virg_true/(float)virg_predict);
-		flower_precision["Iris-versicolor"]+=(versi_true/(float)versi_predict);
+		cout<<"Precision "<<precision<<" Recall "<<recall<<" Accuracy "<<acc<<endl;
 		return acc;
 	}
 	string traverse_decision_tree(node* current_node,flower one_flower)
 	{
 		string predicted_class;
-		//cout<<"Traverse at "<<current_node->is_leaf<<endl;
 		while(!current_node->is_leaf)
 		{
-			//cout<<"Traverse at inner "<<current_node<<endl;
 			switch(current_node->cur_node_split_attribute_id)
 			{
 				case 0:
@@ -765,5 +661,9 @@ public:
 			free( current_node );  // free here
   		}
 	}
-
+	/*constexpr unsigned int str2int(const char* str)
+	{
+		int h=0;
+		return !str[h] ? 5381 : (str2int(str, h+1) * 33) ^ str[h];
+	}*/
 };
