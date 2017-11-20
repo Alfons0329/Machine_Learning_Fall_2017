@@ -1,6 +1,6 @@
 import csv
 import numpy as np
-
+import os
 class kd_node:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
         self.point = point #dat a point
@@ -15,9 +15,10 @@ def fileparsing():
         all_data_list = list(parsed_data)
 
     for i in range(1,len(all_data_list)):
+        #print("parsed to",all_data_list)
         for j in range(2,11):
             float(all_data_list[i][j])
-            #print("parsed to",all_data_list[i][j])
+
 
     return all_data_list
     #print(all_data_list)
@@ -36,6 +37,7 @@ def create_kd_tree(root,node_data_set):
     column_len = len(node_data_set[0]) #append somthing so minus by 4
     max_var = 0
     split = 0
+    #print("clen ",column_len-2)
     for i in range(2,column_len-2):
         #print("i is now ",i)
         column_calculate = [] #empty
@@ -87,18 +89,19 @@ def tree_traverse_check(current_kd_node):
 
 def validate(root,training_set):
     validation_set = []
+
     for i in range(0,36):
         validation_set.append(training_set[i])
     #what to output
-    output_file = open("output.txt","a") #append mode
+    output_file = open("result.txt","w") #append mode
     predicted_correct = 0
     #knn 1
     first_three_output = [[] for i in range(3)]
 
     for i in range(0,36):
         query_point = validation_set[i]
-        print("qry pt ",query_point)
-        original_class = query_point[1]
+        #print("qry pt ",query_point)
+        original_class = query_point[11]
         tree_traverse_check(root) #clear all to false first
         NN,predicted_class = KNN_core(root,query_point)
         if(original_class == predicted_class):
@@ -106,11 +109,12 @@ def validate(root,training_set):
 
         if(i >=0 and i<3): #outputresult
             first_three_output[i].append(NN)
+        input()
 
-    print("KNN accuracy: ",float(predicted_correct/36.0))
-    print(first_three_output[0])
-    print(first_three_output[1])
-    print(first_three_output[2])
+    print("KNN accuracy: ",float(predicted_correct/36.0),output_file)
+    print(first_three_output[0],output_file)
+    print(first_three_output[1],output_file)
+    print(first_three_output[2],output_file)
 
 
     #knn 5
@@ -126,42 +130,48 @@ def KNN_core(root,query_point):
     traversed_point = []
     cur_point = root #has to be the all node
     #binary search in k-dimensional space
+    print("query datapt",query_point)
     while cur_point:
         traversed_point.append(cur_point)
         cur_dist = calculaue_distance(query_point,cur_point.point)
-
+        print("traversed to",cur_point.point, "split via ",cur_point.split)
         if cur_dist < min_dist and cur_point.knn_traversed == False:
             nearest = cur_point
             min_dist = cur_dist
+            cur_point.knn_traversed = True
 
         cur_split = cur_point.split
 
         if(query_point[cur_split]<cur_point.point[cur_split]):
             cur_point = cur_point.left_child
+            print("hl")
         else:
             cur_point = cur_point.right_child
-
+            print("hr")
     #backtrace
     while traversed_point:
         back_point = traversed_point.pop()
         cur_split = back_point.split
 
         #do i need to enter parent's space for searching
+        print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
         if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
             if(query_point[cur_split] < back_point.point[cur_split]): #the other side
                 cur_point = back_point.right_child
             else:
                 cur_point = back_point.left_child
-
             if cur_point: #is the retraversed one
                 traversed_point.append(cur_point)
                 back_trace_distance = (query_point,cur_point.point)
+
                 if cur_dist < min_dist and cur_point.knn_traversed == False:
                     nearest = cur_point
                     min_dist = cur_dist
+                    cur_point.knn_traversed = True
 
     nearest_id = nearest.point[0]
-    nearest_class = nearest.point[1]
+    nearest_class = nearest.point[11]
+    print("nearest point ",nearest.point)
     return nearest_id,nearest_class
 
 def calculaue_distance(point1,point2):
@@ -174,13 +184,16 @@ def calculaue_distance(point1,point2):
 
 if __name__ == "__main__":
     training_set = fileparsing()
+    original_training_set = fileparsing()
+
     training_set = training_set[1:len(training_set)] #remove the first one
-    original_training_set = training_set[1:len(training_set)]
+    original_training_set = original_training_set[1:len(training_set)]
+    #print("ts0",training_set[0])
     append_knnquery_boolean(training_set)
     root = None
 
     root = create_kd_tree(root,training_set)
-    print("Root is ",root.point)
+    #print("Root is ",root.point)
     first_tree_traverse_check(root)
     validate(root,original_training_set)
     #total_cnt=0
