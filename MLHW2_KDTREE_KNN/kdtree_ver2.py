@@ -34,8 +34,7 @@ def create_kd_tree(root,node_data_set,split_attribute):
     if node_data_len <= 1:
         return
 
-    max_var = 0
-    split = split_attribute%9+2
+    split = (split_attribute%9)+2
 
     node_data_set.sort(key=lambda x:x[split])
     #cut in half
@@ -105,7 +104,7 @@ def KNN_core(root,query_point):
         if cur_dist < min_dist and cur_point.knn_traversed == False:
             nearest = cur_point
             min_dist = cur_dist
-            cur_point.knn_traversed = True
+
 
         cur_split = cur_point.split
 
@@ -122,20 +121,23 @@ def KNN_core(root,query_point):
 
         #do i need to enter parent's space for searching
         print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
+        print("min dist",min_dist)
         if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
             if(query_point[cur_split] < back_point.point[cur_split]): #the other side
                 cur_point = back_point.right_child
             else:
                 cur_point = back_point.left_child
+
+
             if cur_point: #is the retraversed one
                 traversed_point.append(cur_point)
-                back_trace_distance = (query_point,cur_point.point)
+                back_trace_distance = calculaue_distance(query_point,cur_point.point)
 
-                if cur_dist < min_dist and cur_point.knn_traversed == False:
+                if back_trace_distance < min_dist and cur_point.knn_traversed == False:
                     nearest = cur_point
-                    min_dist = cur_dist
-                    cur_point.knn_traversed = True
+                    min_dist = back_trace_distance
 
+    nearest.knn_traversed = True
     nearest_id = nearest.point[0]
     nearest_class = nearest.point[11]
     print("nearest point ",nearest.point)
@@ -148,7 +150,7 @@ def calculaue_distance(point1,point2):
         dist+=(float(point1[i])-float(point2[i]))*(float(point1[i])-float(point2[i]))
 
     dist2=dist
-    print("Qry point ",point1," dist ",dist2)
+    print(" dist ",dist2)
     return dist
 
 if __name__ == "__main__":
