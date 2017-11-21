@@ -70,4 +70,3 @@ for K in [1, 5, 10, 100]:
 			fp_ans.write(' ')
 		fp_ans.write('\n')
 	fp_ans.write('\n')
-
