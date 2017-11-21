@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import os
+import pprint
 class kd_node:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
         self.point = point #dat a point
@@ -30,28 +31,45 @@ def append_knnquery_boolean(all_data_list):
 
 def create_kd_tree(root,node_data_set,split_attribute):
     node_data_len = len(node_data_set)
-    #print("datalen = ",len(node_data_set))
-    if node_data_len <= 1:
-        return
+    median_index = int(len(node_data_set)/2)
+    node_data_set.sort(key=lambda x:x[split_attribute])
+    point = node_data_set[median_index]
+    root =  kd_node(point,split_attribute)
 
-    split = (split_attribute%9)+2
-    node_data_set.sort(key=lambda x:x[split])
-    print("split ",split)
+    if node_data_len ==1: #build over
+        return root
+    if split_attribute == 10:
+        split_attribute = 2
+    else:
+        split_attribute += 1
+
+    print("split ",split_attribute)
     #cut in half
-    point = node_data_set[int(node_data_len/2)]
-    root =  kd_node(point,split)
-    #split just like BST
-    #print("Left len ",(int(node_data_len/2)), "Right len ", len(node_data_set[int(node_data_len/2)+1:node_data_len]))
-    #print("LST ",node_data_set[0:int(node_data_len/2)],"\n")
-    #print("RST ",node_data_set[int(node_data_len/2)+1:node_data_len],"\n")
+
+    print("mid in ",point[0])
+    print("Median to be ",median_index)
+
+    print("LST size",len(node_data_set[0:int(node_data_len/2)]),"\n")
+    for i in range(0,int(node_data_len/2)):
+        print(node_data_set[i])
+
+    print("RST size",len(node_data_set[int(node_data_len/2):node_data_len]),"\n")
+    for i in range(int(node_data_len/2),node_data_len):
+        print(node_data_set[i])
+
     #input()
-    root.left_child = create_kd_tree(root.left_child, node_data_set[:int(node_data_len/2)],split_attribute+1)
-    root.right_child = create_kd_tree(root.right_child, node_data_set[int(node_data_len/2):],split_attribute+1)
+    if median_index > 0:
+        root.left_child = create_kd_tree(root.left_child, node_data_set[:median_index],split_attribute)
+    if median_index < len(node_data_set)-1:
+        root.right_child = create_kd_tree(root.right_child, node_data_set[median_index+1:],split_attribute)
+
     return root
 
 def tree_traverse_check(current_kd_node,cnt):
-    print ("Current point ",current_kd_node.point,"Split with ",current_kd_node.split," cnt ",cnt)
+    print ("Current point ",current_kd_node.point[0],"Split with ",current_kd_node.split," cnt ",cnt)
+    #input()
     current_kd_node.knn_traversed = False
+
     if current_kd_node.left_child:
         tree_traverse_check(current_kd_node.left_child,cnt+1)
     if current_kd_node.right_child:
@@ -165,8 +183,8 @@ if __name__ == "__main__":
     #print("ts0",training_set[0])
     append_knnquery_boolean(training_set)
     root = None
-    root = create_kd_tree(root,training_set,0)
-    tree_traverse_check(root,0)
+    root = create_kd_tree(root,training_set,2)
+    tree_traverse_check(root,1)
     #print("Root is ",root.point, "split via ",root.split ," 69 is ",original_training_set[69])
     print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
     print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
