@@ -17,7 +17,7 @@ def fileparsing():
     for i in range(1,len(all_data_list)):
         for j in range(2,11):
             all_data_list[i][j]=float(all_data_list[i][j])
-            print(type(all_data_list[i][j]))
+            #print(type(all_data_list[i][j]))
 
     return all_data_list
     #print(all_data_list)
@@ -30,26 +30,32 @@ def append_knnquery_boolean(all_data_list):
 
 def create_kd_tree(root,node_data_set,split_attribute):
     node_data_len = len(node_data_set)
+    #print("datalen = ",len(node_data_set))
     if node_data_len <= 1:
         return
 
     split = (split_attribute%9)+2
     node_data_set.sort(key=lambda x:x[split])
+    print("split ",split)
     #cut in half
     point = node_data_set[int(node_data_len/2)]
     root =  kd_node(point,split)
     #split just like BST
-    root.left_child = create_kd_tree(root.left_child, node_data_set[0:int(node_data_len/2)],split_attribute+1)
-    root.right_child = create_kd_tree(root.right_child, node_data_set[int(node_data_len/2+1):node_data_len],split_attribute+1)
+    #print("Left len ",(int(node_data_len/2)), "Right len ", len(node_data_set[int(node_data_len/2)+1:node_data_len]))
+    #print("LST ",node_data_set[0:int(node_data_len/2)],"\n")
+    #print("RST ",node_data_set[int(node_data_len/2)+1:node_data_len],"\n")
+    #input()
+    root.left_child = create_kd_tree(root.left_child, node_data_set[:int(node_data_len/2)],split_attribute+1)
+    root.right_child = create_kd_tree(root.right_child, node_data_set[int(node_data_len/2):],split_attribute+1)
     return root
 
-def tree_traverse_check(current_kd_node):
-    #print ("Current point ",current_kd_node.point,"Split with ",current_kd_node.split,"Traversed ??",current_kd_node.knn_traversed)
+def tree_traverse_check(current_kd_node,cnt):
+    print ("Current point ",current_kd_node.point,"Split with ",current_kd_node.split," cnt ",cnt)
     current_kd_node.knn_traversed = False
     if current_kd_node.left_child:
-        tree_traverse_check(current_kd_node.left_child)
+        tree_traverse_check(current_kd_node.left_child,cnt+1)
     if current_kd_node.right_child:
-        tree_traverse_check(current_kd_node.right_child)
+        tree_traverse_check(current_kd_node.right_child,cnt+1)
 
 def validate(root,training_set):
     validation_set = []
@@ -67,7 +73,7 @@ def validate(root,training_set):
         #print("qry pt ",query_point)
         original_class = query_point[11]
         print("Type", type(query_point[8]))
-        tree_traverse_check(root) #clear all to false first
+        tree_traverse_check(root,0) #clear all to false first
         NN,predicted_class = KNN_core(root,query_point)
         if(original_class == predicted_class):
             predicted_correct+=1
@@ -107,7 +113,7 @@ def KNN_core(root,query_point):
 
         cur_split = cur_point.split
 
-        if(query_point[cur_split] < cur_point.point[cur_split]):
+        if(query_point[cur_split] <= cur_point.point[cur_split]):
             cur_point = cur_point.left_child
             print("hl")
         else:
@@ -122,7 +128,7 @@ def KNN_core(root,query_point):
         print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
         print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
         if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
-            if(query_point[cur_split] < back_point.point[cur_split]): #the other side
+            if(query_point[cur_split] <= back_point.point[cur_split]): #the other side
                 cur_point = back_point.right_child
             else:
                 cur_point = back_point.left_child
@@ -143,7 +149,6 @@ def KNN_core(root,query_point):
 
 def calculaue_distance(point1,point2):
     dist=0.0
-
     for i in range(2,11):
         dist+=(float(point1[i])-float(point2[i]))*(float(point1[i])-float(point2[i]))
 
@@ -160,11 +165,12 @@ if __name__ == "__main__":
     #print("ts0",training_set[0])
     append_knnquery_boolean(training_set)
     root = None
-
     root = create_kd_tree(root,training_set,0)
+    tree_traverse_check(root,0)
     #print("Root is ",root.point, "split via ",root.split ," 69 is ",original_training_set[69])
-    print("min dst ",calculaue_distance(original_training_set[0],original_training_set[69]))
+    print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
     print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
+    print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
     #first_tree_traverse_check(root)
     validate(root,original_training_set)
     #total_cnt=0
