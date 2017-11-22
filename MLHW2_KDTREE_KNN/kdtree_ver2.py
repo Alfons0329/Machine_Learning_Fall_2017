@@ -18,10 +18,8 @@ def fileparsing():
     for i in range(1,len(all_data_list)):
         for j in range(2,11):
             all_data_list[i][j]=float(all_data_list[i][j])
-            #print(type(all_data_list[i][j]))
 
     return all_data_list
-    #print(all_data_list)
 
 def append_knnquery_boolean(all_data_list):
     for i in range(0,len(all_data_list)):
@@ -38,26 +36,12 @@ def create_kd_tree(root,node_data_set,split_attribute):
 
     if node_data_len ==1: #build over
         return root
+
     if split_attribute == 10:
         split_attribute = 2
     else:
         split_attribute += 1
 
-    print("split ",split_attribute)
-    #cut in half
-
-    print("mid in ",point[0])
-    print("Median to be ",median_index)
-
-    print("LST size",len(node_data_set[0:int(node_data_len/2)]),"\n")
-    for i in range(0,int(node_data_len/2)):
-        print(node_data_set[i])
-
-    print("RST size",len(node_data_set[int(node_data_len/2):node_data_len]),"\n")
-    for i in range(int(node_data_len/2),node_data_len):
-        print(node_data_set[i])
-
-    #input()
     if median_index > 0:
         root.left_child = create_kd_tree(root.left_child, node_data_set[:median_index],split_attribute)
     if median_index < len(node_data_set)-1:
@@ -66,8 +50,6 @@ def create_kd_tree(root,node_data_set,split_attribute):
     return root
 
 def tree_traverse_check(current_kd_node,cnt):
-    print ("Current point ",current_kd_node.point[0],"Split with ",current_kd_node.split," cnt ",cnt)
-    #input()
     current_kd_node.knn_traversed = False
 
     if current_kd_node.left_child:
@@ -131,7 +113,7 @@ def KNN_core(root,query_point):
 
         cur_split = cur_point.split
 
-        if(query_point[cur_split] <= cur_point.point[cur_split]):
+        if(query_point[cur_split] < cur_point.point[cur_split]):
             cur_point = cur_point.left_child
             print("hl")
         else:
@@ -146,7 +128,7 @@ def KNN_core(root,query_point):
         print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
         print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
         if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
-            if(query_point[cur_split] <= back_point.point[cur_split]): #the other side
+            if(query_point[cur_split] < back_point.point[cur_split]): #the other side
                 cur_point = back_point.right_child
             else:
                 cur_point = back_point.left_child
@@ -189,6 +171,7 @@ if __name__ == "__main__":
     print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
     print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
     print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
+    print("min dst 253 ",calculaue_distance(original_training_set[0],original_training_set[253]))
     #first_tree_traverse_check(root)
     validate(root,original_training_set)
     #total_cnt=0
