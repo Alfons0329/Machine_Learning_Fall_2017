@@ -9,6 +9,7 @@ class kd_node:
         self.split = split
         self.left_child = left_child_init
         self.right_child = right_child_init
+        self.parent = None
         self.knn_traversed = knn_traversed_init
 
 def fileparsing():
@@ -44,8 +45,10 @@ def create_kd_tree(root,node_data_set,split_attribute):
 
     if median_index > 0:
         root.left_child = create_kd_tree(root.left_child, node_data_set[:median_index],split_attribute)
+        root.left_child.parent = root
     if median_index < len(node_data_set)-1:
         root.right_child = create_kd_tree(root.right_child, node_data_set[median_index+1:],split_attribute)
+        root.right_child.parent = root
 
     return root
 
@@ -116,68 +119,54 @@ def validate(root,training_set):
         output_file.write('\n')
 
     output_file.close()
+def binarysearch(cur_point,query_point):
+	if query_point[cur_point.split] < cur_point.point[cur_point.split]:
+		if cur_point.left_child == None:
+			return cur_point
+		else:
+			return binarysearch(cur_point.left_child, query_point)
+	else:
+		if cur_point.right_child == None:
+			return cur_point
+		else:
+			return binarysearch(cur_point.right_child, query_point)
 
 def KNN_core(root,query_point):
 
-    nearest = None #just want the data in it
-    min_dist = 9999.9999 #calculaue_distance (query_point,nearest.point)
-    traversed_point = []
-    cur_point = root #has to be the all node
-    #binary search in k-dimensional space
-    #print("query datapt",query_point)
-    print('\n')
+    pre_point = kd_node(2,3)
+    cur_point = binarysearch(root,query_point)
+    nearest = None
     while cur_point != None:
-        traversed_point.append(cur_point)
-        print("traversed to",cur_point.point[0], "split via ",cur_point.split," tvsed ",cur_point.knn_traversed)
-        cur_dist = calculaue_distance(query_point,cur_point.point)
-        cur_split =  cur_point.split
-        if cur_dist < min_dist and cur_point.knn_traversed == False:
+        min_dist = calculaue_distance(query_point,cur_point.point)
+        nearest = cur_point
+        if cur_point.left_child == None and cur_point.right_child == None: #Leaf node, trace back ascend
+            pre_point = cur_point
+            cur_point = cur_point.parent
             nearest = cur_point
-            min_dist = cur_dist
-            print("smaller")
-
-        print("min dst ",min_dist)
-        if( query_point[cur_split] < cur_point.point[cur_split]):
-            cur_point = cur_point.left_child
-        else:
-            cur_point = cur_point.right_child
-    #backtrace
-
-    while traversed_point:
-        back_point = traversed_point.pop()
-        cur_split = back_point.split
-        #do i need to enter parent's space for searching
-        print("BACK TRACK TO ",back_point.point[0], "split via ",back_point.split," tvsed ",back_point.knn_traversed)
-        print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
-        # input
-        if back_point.left_child == None and back_point.right_child == None:
-            if calculaue_distance(query_point,back_point.point) < min_dist and back_point.knn_traversed == False:
-                nearest = back_point
-                min_dist = calculaue_distance(query_point,back_point.point)
-                print("LEAF NODE ID ",back_point.point[0])
-        else:
-            if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
-                if(query_point[cur_split] < back_point.point[cur_split]): #the other side
-                    cur_point = back_point.right_child
+        elif abs(query_point[cur_point.split] - cur_point.point[cur_point.split]) < min_dist:
+            if query_point[cur_point.split] < cur_point.point[cur_point.split]:
+                if cur_point.right_child == None or cur_point.right_child == pre_point:#reach end or nothing to query, stop
+                    pre_point = cur_point
+                    cur_point = cur_point.parent
                 else:
-                    cur_point = back_point.left_child
-                if cur_point != None: #is the retraversed one
-                    traversed_point.append(cur_point)
-                    print("NON LEAF NODE")
-                    back_trace_distance = calculaue_distance(query_point,cur_point.point)
-                    if back_trace_distance < min_dist and cur_point.knn_traversed == False:
-                        print("BETTER!!!!!! \n")
-                        nearest = cur_point
-                        min_dist = back_trace_distance
+                    pre_point = cur_point
+                    cur_point = binarysearch(cur_point.right_child,query_point)
+            else:
+                if cur_point.left_child == None or cur_point.left_child == pre_point:#reach end or nothing to query, stop
+                    pre_point = cur_point
+                    cur_point = cur_point.parent
+                else:
+                    pre_point = cur_point
+                    cur_point = binarysearch(cur_point.left_child,query_point)
+            if cur_point != None:
+                nearest = cur_point
+        else:
+            pre_point = cur_point
+            cur_point = cur_point.parent
 
-    if nearest:
-        nearest.knn_traversed = True
-        nearest_id = nearest.point[0]
-        nearest_class = nearest.point[11]
-        print("nearest point ",nearest.point," spt ",nearest.split," knn retraversed ", nearest.knn_traversed)
-        return nearest_id,nearest_class
+    print("nearest ",nearest.point[0])
+    return nearest.point[0],nearest.point[11]
 
-    return query_point[0],query_point[11]
 def calculaue_distance(point1,point2):
     dist=0.0
     for i in range(2,11):
