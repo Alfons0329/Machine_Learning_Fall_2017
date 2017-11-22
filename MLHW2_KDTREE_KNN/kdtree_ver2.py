@@ -2,6 +2,7 @@ import csv
 import numpy as np
 import os
 import pprint
+import math
 class kd_node:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
         self.point = point #dat a point
@@ -33,6 +34,8 @@ def create_kd_tree(root,node_data_set,split_attribute):
     root =  kd_node(point,split_attribute)
 
     if node_data_len ==1: #build over
+        root.left_child = None
+        root.right_child = None
         return root
 
     if split_attribute == 10:
@@ -49,7 +52,7 @@ def create_kd_tree(root,node_data_set,split_attribute):
 
 def tree_traverse_check(current_kd_node,cnt):
     current_kd_node.knn_traversed = False
-
+    #print("traversed ID ",current_kd_node.point[0]," split ",current_kd_node.split)
     if current_kd_node.left_child:
         tree_traverse_check(current_kd_node.left_child,cnt+1)
     if current_kd_node.right_child:
@@ -71,10 +74,10 @@ def validate(root,training_set):
     classname_set = ['cp','im','pp','imU','om','omL','imL','imS']
     #KNN main core
     first_three_output = [[] for i in range(3)]
-    for knn_query in [1,5,10,100]:
+    for knn_query in [1,5]:
         first_three_output = [[] for i in range(3)]
         predicted_correct += 1
-        for query_index in range(0,36):
+        for query_index in range(0,3):
             query_point = validation_set[query_index] #take the point for querying
             original_class = query_point[11]
             for search_hash in range(len(classname_set)): #clear the hash map for the query from each point for voting
@@ -82,6 +85,7 @@ def validate(root,training_set):
 
             tree_traverse_check(root,0) #clear all traversed mark to false first,which symbolized non traversed
             for individual_knn_query in range(0,knn_query):
+                print("query_point ",query_point[0]," knn now " ,individual_knn_query)
                 NN,predicted_class = KNN_core(root,query_point)
                 knn_result_hash[predicted_class] += 1
                 if(query_index >=0 and query_index<3): #outputresult
@@ -96,9 +100,9 @@ def validate(root,training_set):
             if(original_class == final_predicted_class):
                 print("Predicted correct ")
                 predicted_correct+=1
-
+            ###input
         print("A KNN Is end ",query_index,"Acc is ",float(predicted_correct)/36.0)
-        input()
+        print('\n'+'\n'+'\n'+'\n'+'\n')
         output_file.write('KNN accuracy: '+str(float(predicted_correct)/36.0)+'\n')
         for output_index in range(len(first_three_output[0])):
             output_file.write(first_three_output[0][output_index]+' ')
@@ -116,55 +120,64 @@ def validate(root,training_set):
 
 def KNN_core(root,query_point):
 
-    nearest = root #just want the data in it
-    min_dist = calculaue_distance (query_point,nearest.point)
+    nearest = None #just want the data in it
+    min_dist = 9999.9999 #calculaue_distance (query_point,nearest.point)
     traversed_point = []
     cur_point = root #has to be the all node
     #binary search in k-dimensional space
     #print("query datapt",query_point)
+    print('\n')
     while cur_point:
         traversed_point.append(cur_point)
-        #print("traversed to",cur_point.point, "split via ",cur_point.split)
+        print("traversed to",cur_point.point[0], "split via ",cur_point.split," tvsed ",cur_point.knn_traversed)
         cur_dist = calculaue_distance(query_point,cur_point.point)
-
+        cur_split =  cur_point.split
         if cur_dist < min_dist and cur_point.knn_traversed == False:
             nearest = cur_point
             min_dist = cur_dist
+            print("smaller")
 
-        cur_split = cur_point.split
-
-        if(query_point[cur_split] < cur_point.point[cur_split]):
+        print("min dst ",min_dist)
+        if( query_point[cur_split] < cur_point.point[cur_split]):
             cur_point = cur_point.left_child
             #print("hl")
         else:
             cur_point = cur_point.right_child
             #print("hr")
     #backtrace
+
     while traversed_point:
         back_point = traversed_point.pop()
         cur_split = back_point.split
-
         #do i need to enter parent's space for searching
-        #print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
-        #print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
-        if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
-            if(query_point[cur_split] < back_point.point[cur_split]): #the other side
-                cur_point = back_point.right_child
-            else:
-                cur_point = back_point.left_child
+        print("BACK TRACK TO ",back_point.point[0], "split via ",back_point.split," tvsed ",back_point.knn_traversed)
+        print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
+        # input
+        if back_point.left_child == None and back_point.right_child == None:
+            if calculaue_distance(query_point,back_point.point) < min_dist:
+                nearest = back_point
+                min_dist = calculaue_distance(query_point,back_point.point)
+                print("LEAF NODE")
+        else:
+            if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
+                if(query_point[cur_split] < back_point.point[cur_split]): #the other side
+                    cur_point = back_point.right_child
+                else:
+                    cur_point = back_point.left_child
+                if cur_point: #is the retraversed one
+                    traversed_point.append(cur_point)
+                    print("NON LEAF NODE")
+                    back_trace_distance = calculaue_distance(query_point,cur_point.point)
+                    if back_trace_distance < min_dist and cur_point.knn_traversed == False:
+                        print("BETTER!!!!!! \n")
+                        nearest = cur_point
+                        min_dist = back_trace_distance
 
-            if cur_point: #is the retraversed one
-                traversed_point.append(cur_point)
-                back_trace_distance = calculaue_distance(query_point,cur_point.point)
-
-                if back_trace_distance < min_dist and cur_point.knn_traversed == False:
-                    nearest = cur_point
-                    min_dist = back_trace_distance
 
     nearest.knn_traversed = True
     nearest_id = nearest.point[0]
     nearest_class = nearest.point[11]
-    print("nearest point ",nearest.point)
+    print("nearest point ",nearest.point," spt ",nearest.split," knn retraversed ", nearest.knn_traversed)
     return nearest_id,nearest_class
 
 def calculaue_distance(point1,point2):
@@ -173,8 +186,8 @@ def calculaue_distance(point1,point2):
         dist+=(float(point1[i])-float(point2[i]))*(float(point1[i])-float(point2[i]))
 
     dist2=dist
-    #print(" dist ",dist2)
-    return dist
+    print(point1[0],"<--------------->",point2[0],"dist ",math.sqrt(dist2))
+    return math.sqrt(dist)
 
 if __name__ == "__main__":
     training_set = fileparsing()
