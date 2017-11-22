@@ -82,23 +82,24 @@ def validate(root,training_set):
 
             tree_traverse_check(root,0) #clear all traversed mark to false first,which symbolized non traversed
             for individual_knn_query in range(0,knn_query):
-
                 NN,predicted_class = KNN_core(root,query_point)
                 knn_result_hash[predicted_class] += 1
                 if(query_index >=0 and query_index<3): #outputresult
                     first_three_output[query_index].append(NN)
-
+            #input()
             max_voted_class = 0
             for search_hash in range(len(classname_set)): #voting for the best result
                 if knn_result_hash[classname_set[search_hash]] > max_voted_class:
                     max_voted_class = knn_result_hash[classname_set[search_hash]]
-                    final_predicted_class = knn_result_hash[classname_set[search_hash]]
-
+                    final_predicted_class = classname_set[search_hash]
+            print("Original ",original_class," predicted class",final_predicted_class)
             if(original_class == final_predicted_class):
+                print("Predicted correct ")
                 predicted_correct+=1
 
-        print("A KNN Is end ",query_index,"Acc is")
-        output_file.write('KNN accuracy: '+str(float(predicted_correct/36.0))+'\n')
+        print("A KNN Is end ",query_index,"Acc is ",float(predicted_correct)/36.0)
+        input()
+        output_file.write('KNN accuracy: '+str(float(predicted_correct)/36.0)+'\n')
         for output_index in range(len(first_three_output[0])):
             output_file.write(first_three_output[0][output_index]+' ')
         output_file.write('\n')
@@ -120,10 +121,10 @@ def KNN_core(root,query_point):
     traversed_point = []
     cur_point = root #has to be the all node
     #binary search in k-dimensional space
-    print("query datapt",query_point)
+    #print("query datapt",query_point)
     while cur_point:
         traversed_point.append(cur_point)
-        print("traversed to",cur_point.point, "split via ",cur_point.split)
+        #print("traversed to",cur_point.point, "split via ",cur_point.split)
         cur_dist = calculaue_distance(query_point,cur_point.point)
 
         if cur_dist < min_dist and cur_point.knn_traversed == False:
@@ -134,18 +135,18 @@ def KNN_core(root,query_point):
 
         if(query_point[cur_split] < cur_point.point[cur_split]):
             cur_point = cur_point.left_child
-            print("hl")
+            #print("hl")
         else:
             cur_point = cur_point.right_child
-            print("hr")
+            #print("hr")
     #backtrace
     while traversed_point:
         back_point = traversed_point.pop()
         cur_split = back_point.split
 
         #do i need to enter parent's space for searching
-        print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
-        print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
+        #print("BACK TRACK TO ",back_point.point, "split via ",back_point.split)
+        #print("min dist ",min_dist," with hyprectl dist ",abs(float(query_point[cur_split]) - float(back_point.point[cur_split])))
         if abs(float(query_point[cur_split]) - float(back_point.point[cur_split])) < min_dist:
             if(query_point[cur_split] < back_point.point[cur_split]): #the other side
                 cur_point = back_point.right_child
@@ -172,7 +173,7 @@ def calculaue_distance(point1,point2):
         dist+=(float(point1[i])-float(point2[i]))*(float(point1[i])-float(point2[i]))
 
     dist2=dist
-    print(" dist ",dist2)
+    #print(" dist ",dist2)
     return dist
 
 if __name__ == "__main__":
@@ -188,9 +189,9 @@ if __name__ == "__main__":
     tree_traverse_check(root,1)
     #print("Root is ",root.point, "split via ",root.split ," 69 is ",original_training_set[69])
     #print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
-    #print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
-    #print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
-    #print("min dst 253 ",calculaue_distance(original_training_set[0],original_training_set[253]))
+    print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
+    print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
+    print("min dst 23 ",calculaue_distance(original_training_set[0],original_training_set[23]))
     #first_tree_traverse_check(root)
     validate(root,original_training_set)
     #total_cnt=0
