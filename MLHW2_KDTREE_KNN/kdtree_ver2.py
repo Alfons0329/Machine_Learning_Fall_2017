@@ -25,8 +25,6 @@ def append_knnquery_boolean(all_data_list):
     for i in range(0,len(all_data_list)):
         all_data_list[i].append('false')
 
-    #print(all_data_list)
-
 def create_kd_tree(root,node_data_set,split_attribute):
     node_data_len = len(node_data_set)
     median_index = int(len(node_data_set)/2)
@@ -63,36 +61,31 @@ def validate(root,training_set):
     for i in range(0,36):
         validation_set.append(training_set[i])
     #what to output
-    output_file = open("result.txt",'a') #append mode
+    output_file = open('result.txt','w') #append mode
     predicted_correct = 0
     #knn 1
     first_three_output = [[] for i in range(3)]
+    for knn_query in [1,5,10,100]:
+        for query_index in range(0,36):
+            query_point = validation_set[i] #take the point for querying
 
-    for i in range(0,36):
-        query_point = validation_set[i]
-        #print("qry pt ",query_point)
-        original_class = query_point[11]
-        print("Type", type(query_point[8]))
-        tree_traverse_check(root,0) #clear all to false first
-        NN,predicted_class = KNN_core(root,query_point)
-        if(original_class == predicted_class):
-            predicted_correct+=1
+            for individual_knn_query in range(0,knn_query):
+                original_class = query_point[11]
+                tree_traverse_check(root,0) #clear all to false first
+                NN,predicted_class = KNN_core(root,query_point)
 
-        if(i >=0 and i<3): #outputresult
-            first_three_output[i].append(NN)
-        input()
+                if(original_class == predicted_class):
+                    predicted_correct+=1
+                if(query_index >=0 and query_index<3): #outputresult
+                    first_three_output[query_index].append(NN)
 
-    print("KNN accuracy: ",float(predicted_correct/36.0),output_file)
-    print(first_three_output[0],output_file)
-    print(first_three_output[1],output_file)
-    print(first_three_output[2],output_file)
+            output_file.write('KNN accuracy: '+str(float(predicted_correct/36.0)))
+            output_file.write(first_three_output[0])
+            output_file.write(first_three_output[1])
+            output_file.write(first_three_output[2])
 
 
-    #knn 5
-
-    #knn 10
-
-    #knn 100
+    output_file.close()
 
 def KNN_core(root,query_point):
 
@@ -168,10 +161,10 @@ if __name__ == "__main__":
     root = create_kd_tree(root,training_set,2)
     tree_traverse_check(root,1)
     #print("Root is ",root.point, "split via ",root.split ," 69 is ",original_training_set[69])
-    print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
-    print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
-    print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
-    print("min dst 253 ",calculaue_distance(original_training_set[0],original_training_set[253]))
+    #print("163 num and 193 num ",original_training_set[163][0],"     ",original_training_set[193][0])
+    #print("min dst 193 ",calculaue_distance(original_training_set[0],original_training_set[193]))
+    #print("min dst 163 ",calculaue_distance(original_training_set[0],original_training_set[163]))
+    #print("min dst 253 ",calculaue_distance(original_training_set[0],original_training_set[253]))
     #first_tree_traverse_check(root)
     validate(root,original_training_set)
     #total_cnt=0
