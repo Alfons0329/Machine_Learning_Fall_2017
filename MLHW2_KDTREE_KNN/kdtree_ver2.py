@@ -1,6 +1,5 @@
 import csv
-import numpy as np
-import os
+import sys
 import math
 class kd_point:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
@@ -11,7 +10,9 @@ class kd_point:
         self.knn_traversed = knn_traversed_init
 
 def fileparsing():
-    with open('train.csv','r') as opened_file : #use r for reading a file
+    train_filename = sys.argv[1]
+    test_filename = sys.argv[2]
+    with open(train_filename,'r') as opened_file: #use r for reading a file
         parsed_data = csv.reader(opened_file)
         all_data_list = list(parsed_data)
 
@@ -19,7 +20,15 @@ def fileparsing():
         for j in range(2,11):
             all_data_list[i][j]=float(all_data_list[i][j])
 
-    return all_data_list
+    with open(test_filename,'r') as opened_file:
+        parsed_data = csv.reader(opened_file)
+        test_data_list = list(parsed_data)
+
+    for i in range(0,len(test_data_list)):
+        for j in range(2,11):
+            test_data_list[i][j]=float(test_data_list[i][j])
+
+    return all_data_list,test_data_list
 
 def append_knnquery_boolean(all_data_list):
     for i in range(0,len(all_data_list)):
@@ -33,7 +42,6 @@ def create_kd_tree(root,point_data_set,split_attribute):
     root =  kd_point(point,split_attribute)
 
     if point_data_len ==1: #build over
-        print("Leaf ",root.point[0], " split ",root.split)
         return root
 
     if split_attribute == 10:
@@ -50,16 +58,12 @@ def create_kd_tree(root,point_data_set,split_attribute):
 
 def tree_traverse_check(current_kd_point,cnt):
     current_kd_point.knn_traversed = False
-    #print("traversed ID ",current_kd_point.point[0]," split ",current_kd_point.split)
     if current_kd_point.left_child:
         tree_traverse_check(current_kd_point.left_child,cnt+1)
     if current_kd_point.right_child:
         tree_traverse_check(current_kd_point.right_child,cnt+1)
 
-def validate(root,training_set):
-    validation_set = []
-    for i in range(0,36):
-        validation_set.append(training_set[i])
+def validate(root,testing_set):
     #what to output
     output_file = open('result.txt','w') #Write mode
     #integer declaration
@@ -75,8 +79,8 @@ def validate(root,training_set):
     for knn_query in [1,5,10,100]:
         first_three_output = [[] for i in range(3)]
         predicted_correct = 0 #reset the predicted_correct for each knn
-        for query_index in range(0,36): #test the first 3, will be changed to 36 later
-            query_point = validation_set[query_index] #take the point for querying
+        for query_index in range(len(testing_set)): #test the first 3, will be changed to 36 later
+            query_point = testing_set[query_index] #take the point for querying
             original_class = query_point[11]
             for search_hash in range(len(classname_set)): #clear the hash map for the query from each point for voting
                 knn_result_hash[classname_set[search_hash]] = 0
@@ -107,9 +111,7 @@ def validate(root,training_set):
         output_file.write('\n')
 
     output_file.close()
-def binary_search(root,query_point):
 
-    return cur_point
 def KNN_core(root,query_point,cur_knn,all_knn):
 
     nearest = None #just want the data in it
@@ -171,13 +173,10 @@ def calculaue_distance(point1,point2):
     return math.sqrt(dist)
 
 if __name__ == "__main__":
-    training_set = fileparsing()
-    original_training_set = fileparsing()
-
+    training_set , testing_set = fileparsing()
     training_set = training_set[1:len(training_set)] #remove the first one
-    original_training_set = original_training_set[1:len(original_training_set)]
     append_knnquery_boolean(training_set)
     root = None
     root = create_kd_tree(root,training_set,2)
     tree_traverse_check(root,1)
-    validate(root,original_training_set)
+    validate(root,testing_set)
