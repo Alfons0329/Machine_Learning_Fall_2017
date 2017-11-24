@@ -3,8 +3,8 @@ import sys
 import math
 import numpy as np
 
-PCA_PERCENTAGE = 0.80 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
-
+PCA_PERCENTAGE = 0.995 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
+top_N = 0
 class kd_point:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
         self.point = point #dat a point
@@ -38,55 +38,45 @@ def PCA_analysis(training_set):
 
     for i in range (len(training_set)):
         training_set_pointonly[i]=(training_set[i][2:11])
-        print(training_set_pointonly[i])
+        #print(training_set_pointonly[i])
     #doing the PCA analysis
     #zero mean of each atrribute, which is V2_attribute = V1_attribute - MEAN[attribute]
 
     mean_value_matrix, mean_value = get_mean_value_matrix(training_set_pointonly)
-    print(mean_value_matrix.shape)
-    print(mean_value)
+    #print(mean_value_matrix.shape)
+    #print(mean_value)
 
     covariance_matrix = np.cov(mean_value_matrix, rowvar=0) #use row for each data
     eigen_values, eigen_vectors = np.linalg.eig(np.mat(covariance_matrix)) #calculate eigen_values and eigen_vectors
     #get top_N
-    print("Eigen values ",eigen_values)
-    print("Eigen vectors ",eigen_vectors)
+    #print("Eigen values ",eigen_values)
+    #print("Eigen vectors ",eigen_vectors)
     top_N = top_N_attributes_analysys(eigen_values)
 
     sorted_eigen_values_index = np.argsort(eigen_values)#get the index from smallest to biggest eigen values
-    print(sorted_eigen_values_index)
     top_N_eigen_values_index = sorted_eigen_values_index[-1:-(top_N+1):-1]#sort in descending order
-    print("TN INDEX ",top_N_eigen_values_index)
     top_N_eigen_vectors = eigen_vectors[:,top_N_eigen_values_index]
+    np.array(top_N_eigen_vectors)
+    new_mean_value = []
+    for i in range(len(top_N_eigen_values_index)):
+        new_mean_value.append(mean_value[top_N_eigen_values_index[i]])
 
-    print("top N eigen vectors ",top_N_eigen_vectors)
+    np.matrix(new_mean_value) #change from numpy to matrix for multiplication in np.multiply
+    optimized_training_set = mean_value_matrix * top_N_eigen_vectors #does not need to add meanvalue since it is just a shift operation
 
-    print("smpmmat ",(mean_value_matrix).shape)
-    low_dimension_set = mean_value_matrix * top_N_eigen_vectors
-    print(top_N_eigen_vectors.T)
-    input()
-    optimized_training_set = (low_dimension_set * top_N_eigen_vectors.T) + mean_value
+    optimized_training_set = optimized_training_set.tolist() #change back to list type in python
 
     for i in range(len(optimized_training_set)):
-        #optimized_training_set.insert(0,training_set[i][0])
-        #optimized_training_set.insert(1,training_set[i][1])
-        #optimized_training_set.insert(11,training_set[i][11])
-        #optimized_training_set.insert(12,False)
-        print(optimized_training_set[i])
+        optimized_training_set[i].insert(0,training_set[i][0])
+        optimized_training_set[i].insert(1,training_set[i][1])
+        optimized_training_set[i].insert(11,training_set[i][11])
+        optimized_training_set[i].insert(12,False)
+        #print(optimized_training_set[i])
 
-    return optimized_training_set,  top_N
+    #input()
+    return optimized_training_set,top_N
 
 def get_mean_value_matrix(training_set_pointonly):
-    """column_mean_value = []
-    tmp = 0.0
-    print(np.array(training_set_pointonly).shape)
-    for i in range(len(training_set_pointonly[0])):
-        tmp = 0.0
-        for j in range(len(training_set_pointonly)):
-            tmp += training_set_pointonly[j][i]
-
-
-        column_mean_value.append(tmp/300.0)"""
     mean_value = np.mean(training_set_pointonly, axis = 0)
     mean_value_matrix = training_set_pointonly - mean_value
 
@@ -117,15 +107,15 @@ def create_kd_tree(root,point_data_set,split_attribute,top_N):
     if point_data_len ==1: #build over
         return root
 
-    if split_attribute == top_N+2:
+    if split_attribute == top_N+1:
         split_attribute = 2
     else:
         split_attribute += 1
 
     if median_index > 0:
-        root.left_child = create_kd_tree(root.left_child, point_data_set[:median_index],split_attribute)
+        root.left_child = create_kd_tree(root.left_child, point_data_set[:median_index],split_attribute,top_N)
     if median_index < len(point_data_set)-1:
-        root.right_child = create_kd_tree(root.right_child, point_data_set[median_index+1:],split_attribute)
+        root.right_child = create_kd_tree(root.right_child, point_data_set[median_index+1:],split_attribute,top_N)
 
     return root
 
@@ -154,7 +144,9 @@ def validate(root,testing_set):
         predicted_correct = 0 #reset the predicted_correct for each knn
         for query_index in range(len(testing_set)): #test the first 3, will be changed to 36 later
             query_point = testing_set[query_index] #take the point for querying
-            original_class = query_point[11]
+            print("querying point = ",testing_set[query_index])
+            #input()
+            original_class = query_point[-2]
             for search_hash in range(len(classname_set)): #clear the hash map for the query from each point for voting
                 knn_result_hash[classname_set[search_hash]] = 0
 
@@ -235,13 +227,14 @@ def KNN_core(root,query_point,cur_knn,all_knn):
 
     nearest.knn_traversed = True #mark that knn point to be true, so that next time it will not be selected for closer distance
     nearest_id = nearest.point[0]
-    nearest_class = nearest.point[11]
+    nearest_class = nearest.point[-2]
     return nearest_id,nearest_class
 
 
 def calculaue_distance(point1,point2):
     dist=0.0
-    for i in range(2,11):
+    global top_N
+    for i in range(2,top_N+2):
         dist+=(float(point1[i])-float(point2[i]))*(float(point1[i])-float(point2[i]))
     return math.sqrt(dist)
 
@@ -249,8 +242,10 @@ if __name__ == "__main__":
     training_set , testing_set = fileparsing()
     training_set = training_set[1:len(training_set)] #remove the first one
     optimized_training_set, top_N = PCA_analysis(training_set)
-    append_knnquery_boolean(optimized_training_set)
+    optimized_testing_set = optimized_training_set
+    #append_knnquery_boolean(optimized_training_set)
     root = None
     root = create_kd_tree(root,optimized_training_set,2,top_N)
     tree_traverse_check(root,1)
-    validate(root,testing_set)
+    optimized_training_set.sort(key=lambda x:x[0]) #resort according to ID
+    validate(root,optimized_training_set)
