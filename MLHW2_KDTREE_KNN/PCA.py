@@ -3,7 +3,7 @@ import sys
 import math
 import numpy as np
 
-PCA_PERCENTAGE = 0.995 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
+PCA_PERCENTAGE = 0.85 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
 top_N = 0
 class kd_point:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
@@ -138,14 +138,13 @@ def validate(root,testing_set):
     knn_result_hash = {'cp':0,'im':0,'pp':0,'imU':0,'om':0,'omL':0,'imL':0,'imS':0}
     classname_set = ['cp','im','pp','imU','om','omL','imL','imS']
     #KNN main core
+
     first_three_output = [[] for i in range(3)]
     for knn_query in [1,5,10,100]:
         first_three_output = [[] for i in range(3)]
         predicted_correct = 0 #reset the predicted_correct for each knn
         for query_index in range(len(testing_set)): #test the first 3, will be changed to 36 later
             query_point = testing_set[query_index] #take the point for querying
-            print("querying point = ",testing_set[query_index])
-            #input()
             original_class = query_point[-2]
             for search_hash in range(len(classname_set)): #clear the hash map for the query from each point for voting
                 knn_result_hash[classname_set[search_hash]] = 0
@@ -171,7 +170,7 @@ def validate(root,testing_set):
         output_file.write('PCA KNN accuracy: '+str(float(predicted_correct)/36.0)+'\n')
         for cnt in range(3):
             for output_index in range(len(first_three_output[cnt])):
-                output_file.write(first_three_output[cnt][output_index]+' ')
+                output_file.write(str(first_three_output[cnt][output_index])+' ') #dunno why sometimes it will be converted to float
             output_file.write('\n')
         output_file.write('\n')
 
@@ -242,10 +241,17 @@ if __name__ == "__main__":
     training_set , testing_set = fileparsing()
     training_set = training_set[1:len(training_set)] #remove the first one
     optimized_training_set, top_N = PCA_analysis(training_set)
-    optimized_testing_set = optimized_training_set
+    optimized_testing_set = optimized_training_set[0:36]
     #append_knnquery_boolean(optimized_training_set)
     root = None
     root = create_kd_tree(root,optimized_training_set,2,top_N)
     tree_traverse_check(root,1)
-    optimized_training_set.sort(key=lambda x:x[0]) #resort according to ID
-    validate(root,optimized_training_set)
+    for i in range(len(optimized_testing_set)): #change type
+        optimized_testing_set[i][0] = int(optimized_testing_set[i][0])
+        for j in range(2,2+top_N):
+            optimized_testing_set[i][j] = float(optimized_testing_set[i][j])
+
+    optimized_testing_set.sort(key=lambda x:x[0]) #resort according to ID
+    print(optimized_testing_set)
+    #input()
+    validate(root,optimized_testing_set)
