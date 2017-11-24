@@ -150,10 +150,10 @@ def validate(root,testing_set):
                 knn_result_hash[classname_set[search_hash]] = 0
 
             tree_traverse_check(root,0) #clear all traversed mark to false first,which symbolized non traversed
-            for individual_knn_query in range(0,knn_query+1):#do knn for individual point
+            for individual_knn_query in range(0,knn_query):#do knn for individual point
                 NN,predicted_class = KNN_core(root,query_point,individual_knn_query,knn_query)
                 knn_result_hash[predicted_class] += 1 #update the hash result
-                if(query_index >=0 and query_index<3 and individual_knn_query): #outputresult
+                if(query_index >=0 and query_index<3): #outputresult
                     first_three_output[query_index].append(NN)
 
             max_voted_class = 0
