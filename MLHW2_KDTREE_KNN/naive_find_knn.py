@@ -2,10 +2,11 @@
 # Find KNN by calculating all distance from test data to train data #
 #####################################################################
 import sys
-
+import time
 DIMENSION = 9
 
 # function: getClass
+start_time = time.time()
 def getClass(string):
 	return {
 		'cp': 0,
@@ -69,3 +70,6 @@ for K in [1, 5, 10, 100]:
 		fp_ans.write('\n')
 	fp_ans.write('\n')
 
+
+
+print("--- %s seconds ---" % (time.time() - start_time))

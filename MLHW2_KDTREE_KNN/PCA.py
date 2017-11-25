@@ -38,32 +38,20 @@ def PCA_analysis(training_set):
 
     for i in range (len(training_set)):
         training_set_pointonly[i]=(training_set[i][2:11])
-        #print(training_set_pointonly[i])
     #doing the PCA analysis
     #zero mean of each atrribute, which is V2_attribute = V1_attribute - MEAN[attribute]
-
     mean_value_matrix, mean_value = get_mean_value_matrix(training_set_pointonly)
-    #print(mean_value_matrix.shape)
-    #print(mean_value)
-
     covariance_matrix = np.cov(mean_value_matrix, rowvar=0) #use row for each data
+    #get eigen_values from covariance_matrix
     eigen_values, eigen_vectors = np.linalg.eig(np.mat(covariance_matrix)) #calculate eigen_values and eigen_vectors
-    #get top_N
-    #print("Eigen values ",eigen_values)
-    #print("Eigen vectors ",eigen_vectors)
+    #get top_N eigen_values index using
     top_N = top_N_attributes_analysys(eigen_values)
-
     sorted_eigen_values_index = np.argsort(eigen_values)#get the index from smallest to biggest eigen values
     top_N_eigen_values_index = sorted_eigen_values_index[-1:-(top_N+1):-1]#sort in descending order
-    top_N_eigen_vectors = eigen_vectors[:,top_N_eigen_values_index]
-    np.array(top_N_eigen_vectors)
-    new_mean_value = []
-    for i in range(len(top_N_eigen_values_index)):
-        new_mean_value.append(mean_value[top_N_eigen_values_index[i]])
-
-    np.matrix(new_mean_value) #change from numpy to matrix for multiplication in np.multiply
+    top_N_eigen_vectors = eigen_vectors[:,top_N_eigen_values_index]#get top_N eigen_vectors according to argsort
+    np.matrix(top_N_eigen_vectors) #change to numpy matrix for multiplication
+    #linear transformation and projection to lower dimensions
     optimized_training_set = mean_value_matrix * top_N_eigen_vectors #does not need to add meanvalue since it is just a shift operation
-
     optimized_training_set = optimized_training_set.tolist() #change back to list type in python
 
     for i in range(len(optimized_training_set)):
@@ -71,9 +59,7 @@ def PCA_analysis(training_set):
         optimized_training_set[i].insert(1,training_set[i][1])
         optimized_training_set[i].insert(11,training_set[i][11])
         optimized_training_set[i].insert(12,False)
-        #print(optimized_training_set[i])
 
-    #input()
     return optimized_training_set,top_N
 
 def get_mean_value_matrix(training_set_pointonly):
@@ -93,6 +79,7 @@ def top_N_attributes_analysys(eigen_values):
         top_N += 1
         if cur_sum >= sum_eigen_values*PCA_PERCENTAGE:
             return top_N
+
 def append_knnquery_boolean(all_data_list):
     for i in range(0,len(all_data_list)):
         all_data_list[i].append('false')

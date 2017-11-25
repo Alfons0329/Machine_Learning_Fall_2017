@@ -1,6 +1,7 @@
 import csv
 import sys
 import math
+import time
 class kd_point:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
         self.point = point #dat a point
@@ -174,6 +175,7 @@ def calculaue_distance(point1,point2):
     return math.sqrt(dist)
 
 if __name__ == "__main__":
+    start_time = time.time()
     training_set , testing_set = fileparsing()
     training_set = training_set[1:len(training_set)] #remove the first one
     append_knnquery_boolean(training_set)
@@ -181,3 +183,4 @@ if __name__ == "__main__":
     root = create_kd_tree(root,training_set,2)
     tree_traverse_check(root,1)
     validate(root,testing_set)
+    print("--- %s seconds ---" % (time.time() - start_time))

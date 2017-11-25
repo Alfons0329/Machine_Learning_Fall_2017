@@ -1,0 +1,4 @@
+export PATH=~/anaconda3/bin:$PATH
+export PATH="~/anaconda/envs/python3/bin:$PATH"
+alias python=/home/alfons/anaconda3/bin/python
+alias conda=/home/alfons/anaconda3/bin/conda
