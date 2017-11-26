@@ -3,7 +3,7 @@ import sys
 import math
 import numpy as np
 
-PCA_PERCENTAGE = 0.85 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
+PCA_PERCENTAGE = 0.80 #constant for PCA PCA_PERCENTAGE where how much proportion to hold for eigen_vectors
 top_N = 0
 class kd_point:
     def __init__(self ,point = None, split = None, left_child_init = None, right_child_init = None, knn_traversed_init = False): #default constructor of the class
@@ -33,15 +33,20 @@ def fileparsing():
             test_data_list[i][j]=float(test_data_list[i][j])
 
     return all_data_list,test_data_list
-def PCA_analysis(training_set):
-    training_set_pointonly = first_three_output = [[] for i in range(len(training_set))]
+def PCA_analysis(training_set,testing_set):
+    training_set_pointonly =  [[] for i in range(len(training_set))]
+    testing_set_pointonly = [[] for i in range(len(testing_set))]
 
     for i in range (len(training_set)):
-        training_set_pointonly[i]=(training_set[i][2:11])
+        training_set_pointonly[i] = (training_set[i][2:11])
+    for i in range (len(testing_set)):
+        testing_set_pointonly[i] = (testing_set[i][2:11])
     #doing the PCA analysis
     #zero mean of each atrribute, which is V2_attribute = V1_attribute - MEAN[attribute]
     mean_value_matrix, mean_value = get_mean_value_matrix(training_set_pointonly)
-    covariance_matrix = np.cov(mean_value_matrix, rowvar=0) #use row for each data
+    testing_set_mean_value_matrix, testing_set_mean_value = get_mean_value_matrix(testing_set_pointonly)
+    covariance_matrix = np.cov(mean_value_matrix, rowvar = 0) #use row for each data
+    testing_set_covariance_matrix = np.cov(testing_set_mean_value_matrix, rowvar = 0)
     #get eigen_values from covariance_matrix
     eigen_values, eigen_vectors = np.linalg.eig(np.mat(covariance_matrix)) #calculate eigen_values and eigen_vectors
     #get top_N eigen_values index using
@@ -53,6 +58,8 @@ def PCA_analysis(training_set):
     #linear transformation and projection to lower dimensions
     optimized_training_set = mean_value_matrix * top_N_eigen_vectors #does not need to add meanvalue since it is just a shift operation
     optimized_training_set = optimized_training_set.tolist() #change back to list type in python
+    optimized_testing_set = testing_set_mean_value_matrix * top_N_eigen_vectors
+    optimized_testing_set = optimized_testing_set.tolist()
 
     for i in range(len(optimized_training_set)):
         optimized_training_set[i].insert(0,training_set[i][0])
@@ -60,7 +67,14 @@ def PCA_analysis(training_set):
         optimized_training_set[i].insert(11,training_set[i][11])
         optimized_training_set[i].insert(12,False)
 
-    return optimized_training_set,top_N
+    for i in range(len(optimized_testing_set)):
+        optimized_testing_set[i].insert(0,testing_set[i][0])
+        optimized_testing_set[i].insert(1,testing_set[i][1])
+        optimized_testing_set[i].insert(11,testing_set[i][11])
+        optimized_testing_set[i].insert(12,False)
+
+
+    return optimized_training_set, optimized_testing_set, top_N
 
 def get_mean_value_matrix(training_set_pointonly):
     mean_value = np.mean(training_set_pointonly, axis = 0)
@@ -227,9 +241,9 @@ def calculaue_distance(point1,point2):
 if __name__ == "__main__":
     training_set , testing_set = fileparsing()
     training_set = training_set[1:len(training_set)] #remove the first one
-    optimized_training_set, top_N = PCA_analysis(training_set)
-    optimized_testing_set = optimized_training_set[0:36]
-    #append_knnquery_boolean(optimized_training_set)
+    optimized_training_set, optimized_testing_set, top_N = PCA_analysis(training_set,testing_set)
+    print(optimized_training_set)
+    input()
     root = None
     root = create_kd_tree(root,optimized_training_set,2,top_N)
     tree_traverse_check(root,1)
@@ -240,5 +254,5 @@ if __name__ == "__main__":
 
     optimized_testing_set.sort(key=lambda x:x[0]) #resort according to ID
     print(optimized_testing_set)
-    #input()
+    input()
     validate(root,optimized_testing_set)
