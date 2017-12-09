@@ -542,9 +542,9 @@ public:
 		validate_data5.clear();
 		clear_tree(root);
 		cout<<(acc1+acc2+acc3+acc4+acc5)/5.0<<endl;
-		cout<<flower_precision["Iris-setosa"]/5.0<<" "<<flower_recall["Iris-setosa"]/5.0<<endl;
-		cout<<flower_precision["Iris-virginica"]/5.0<<" "<<flower_recall["Iris-virginica"]/5.0<<endl;
-		cout<<flower_precision["Iris-versicolor"]/5.0<<" "<<flower_recall["Iris-versicolor"]/5.0<<endl;
+		// cout<<flower_precision["Iris-setosa"]/5.0<<" "<<flower_recall["Iris-setosa"]/5.0<<endl;
+		// cout<<flower_precision["Iris-virginica"]/5.0<<" "<<flower_recall["Iris-virginica"]/5.0<<endl;
+		// cout<<flower_precision["Iris-versicolor"]/5.0<<" "<<flower_recall["Iris-versicolor"]/5.0<<endl;
 	}
 	float validate_result(vector<flower>& validate_data, map<string,float>& flower_recall, map<string,float>& flower_precision)
 	{

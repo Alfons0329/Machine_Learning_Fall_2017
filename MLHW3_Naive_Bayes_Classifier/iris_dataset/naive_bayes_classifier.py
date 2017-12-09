@@ -13,31 +13,48 @@ testing_set = []
 testing_set_predicted = []
 def preprocesing():
     train_filename = sys.argv[1]
-    #primitive initialization
+    testing_filename = sys.argv[2]
+    global training_set
+    global training_set_predicted
+    global testing_set
+    global testing_set_predicted
+
     with open(train_filename,'r') as opened_file: #use r for reading a file
         parsed_data = csv.reader(opened_file)
-        all_data_list = list(parsed_data)
+        training_set = list(parsed_data)
+
+    with open(testing_filename,'r') as opened_file: #use r for reading a file
+        parsed_data = csv.reader(opened_file)
+        testing_set = list(parsed_data)
 
     #change data type, make string to float and make the flower class become integer representation for fitting the naive_bayes classifier
-    for i in range(len(all_data_list)):
-        for j in range(4):
-            all_data_list[i][j] = float(all_data_list[i][j])
-        #do the type transformation
-        if(all_data_list[i][4] == 'Iris-setosa'):
-            all_data_list[i][4] = 0
-        elif(all_data_list[i][4] == 'Iris-versicolor'):
-            all_data_list[i][4] = 1
-        elif(all_data_list[i][4] == 'Iris-virginica'):
-            all_data_list[i][4] = 2
-    #shuffle the dataset
-    rn.shuffle(all_data_list)
-    for i in range(int(len(all_data_list)*0.7)): #split
-        training_set.append(all_data_list[i][0:4])
-        training_set_predicted.append(all_data_list[i][4])
+    for i in range(len(training_set)):
+        for j in range (len(training_set[i])-1):
+            training_set[i][j] = float(training_set[i][j])
 
-    for i in range(len(all_data_list)-1,int(len(all_data_list)*0.7)-1,-1):
-        testing_set.append(all_data_list[i][0:4])
-        testing_set_predicted.append(all_data_list[i][4])
+        if(training_set[i][4] == 'Iris-setosa'):
+            training_set[i][4] = 0
+        elif(training_set[i][4] == 'Iris-versicolor'):
+            training_set[i][4] = 1
+        elif(training_set[i][4] == 'Iris-virginica'):
+            training_set[i][4] = 2
+
+        training_set_predicted.append(training_set[i][4])
+        training_set[i] = training_set[i][0:4] #move the class away
+
+    for i in range(len(testing_set)):
+        for j in range (len(testing_set[i])-1):
+            testing_set[i][j] = float(testing_set[i][j])
+
+        if(testing_set[i][4] == 'Iris-setosa'):
+            testing_set[i][4] = 0
+        elif(testing_set[i][4] == 'Iris-versicolor'):
+            testing_set[i][4] = 1
+        elif(testing_set[i][4] == 'Iris-virginica'):
+            testing_set[i][4] = 2
+
+        testing_set_predicted.append(testing_set[i][4])
+        testing_set[i] = testing_set[i][0:4] #move the class away
 """
 naive_bayes usage
 1.
@@ -56,8 +73,15 @@ Predicted target values for X
 """
 def validate():
     #traing the model using GaussianNB
+    global training_set
+    global training_set_predicted
+    global testing_set
+    global testing_set_predicted
+    print(training_set)
+    print('and')
+    print(testing_set)
     gnb = GaussianNB()
-    my_naive_bayes_classifier = gnb.fit(testing_set, testing_set_predicted)
+    my_naive_bayes_classifier = gnb.fit(training_set, training_set_predicted)
     correct_prediction = 0
     predicted_class_set = gnb.predict(testing_set)
 
