@@ -18,7 +18,7 @@ def random_testdata_generator():
     with open(all_data_name,'r') as opened_file: #use r for reading a file
         parsed_data = csv.reader(opened_file)
         all_data_list = list(parsed_data)
-    #shuffle the dataset
+
     rn.shuffle(all_data_list)
     for i in range(int(len(all_data_list)*0.7)): #split
         for j in range(len(all_data_list[i])):

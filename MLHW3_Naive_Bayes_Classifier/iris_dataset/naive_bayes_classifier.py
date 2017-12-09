@@ -1,11 +1,7 @@
 from sklearn.naive_bayes import GaussianNB
 import sklearn.naive_bayes
 import csv
-import os
 import sys
-import math
-import numpy as np
-import scipy as sp
 import random as rn
 training_set = []
 training_set_predicted = []
@@ -55,6 +51,8 @@ def preprocesing():
 
         testing_set_predicted.append(testing_set[i][4])
         testing_set[i] = testing_set[i][0:4] #move the class away
+
+    return training_set, training_set_predicted, testing_set, testing_set_predicted
 """
 naive_bayes usage
 1.
@@ -77,9 +75,6 @@ def validate():
     global training_set_predicted
     global testing_set
     global testing_set_predicted
-    print(training_set)
-    print('and')
-    print(testing_set)
     gnb = GaussianNB()
     my_naive_bayes_classifier = gnb.fit(training_set, training_set_predicted)
     correct_prediction = 0

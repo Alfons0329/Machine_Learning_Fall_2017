@@ -20,6 +20,16 @@ then
 else
     echo "
     Naive_Bayes_Classifier build failed,
-    check if kdtree_ver2.py,
+    check if naive_bayes_classifier.py,
+    train.csv and test.csv are all exist"
+fi
+
+if [ -e "decision_tree.py" -a -e $iris_train -a -e $iris_train ];
+then
+    $python_src decision_tree.py $iris_train $iris_test
+else
+    echo "
+    Decision_Tree_Classifier build failed,
+    check if decision_tree.py,
     train.csv and test.csv are all exist"
 fi
