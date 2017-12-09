@@ -83,7 +83,7 @@ def validate():
     for i in range(len(testing_set)):
         original_class = testing_set_predicted[i]
         predicted_class = predicted_class_set[i]
-        print("testing set",i," ",testing_set[i],"original_class ",original_class,"predicted_class",predicted_class)
+        #print("testing set",i," ",testing_set[i],"original_class ",original_class,"predicted_class",predicted_class)
         if(predicted_class == original_class):
             correct_prediction += 1
 

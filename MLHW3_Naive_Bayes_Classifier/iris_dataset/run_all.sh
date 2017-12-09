@@ -33,3 +33,13 @@ else
     check if decision_tree.py,
     train.csv and test.csv are all exist"
 fi
+
+if [ -e "KD_tree.py" -a -e $iris_train -a -e $iris_train ];
+then
+    $python_src KD_tree.py $iris_train $iris_test
+else
+    echo "
+    KD_tree build failed,
+    check if KD_tree.py,
+    train.csv and test.csv are all exist"
+fi
