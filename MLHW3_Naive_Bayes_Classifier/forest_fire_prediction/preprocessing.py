@@ -3,6 +3,7 @@ How to draw PDF?https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/nump
 """
 import numpy as np
 import scipy as sp
+import scipy.stats as stats
 import matplotlib.pyplot as plt
 import csv
 import sys
@@ -57,29 +58,65 @@ def draw_PDF():
     global testing_set_predicted
     training_set = np.array(training_set)#temporary convert to numpy array for plotting the pdf
 
-    for i in range(len(training_set))
-        train_feature = training_set[:,i]
-        plt.title("Forestfire feature "i": FFMC Probability Distribution Function")
-        #normalize the data and whoe the data
-        train_mean = np.mean(train_feature)
-        train_std = np.std()
-        sp.stats.pdf #use the scipy pdf function to show it
-
-
-
+    fid = plt.figure()
     train_feature_1 = training_set[:,0]
-    print("tf7",len(training_set[1]))
-
+    train_feature_1.sort()
+    plt.title("Forestfire feature 1: FFMC Probability Distribution Function")
+    train_mean = np.mean(train_feature_1)
+    train_std = np.std(train_feature_1)
+    pdf = stats.norm.pdf(train_feature_1,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_1,pdf) #x axis `y axis
+    plt.show()
+    input()
     train_feature_2 = training_set[:,1]
+    plt.title("Forestfire feature 2: DMC Probability Distribution Function")
+    train_mean = np.mean(train_feature_2)
+    train_std = np.std(train_feature_2)
+    pdf = stats.norm.pdf(train_feature_2,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_2,pdf) #x axis y axis
+
     train_feature_3 = training_set[:,2]
+    plt.title("Forestfire feature 2: DC Probability Distribution Function")
+    train_mean = np.mean(train_feature_3)
+    train_std = np.std(train_feature_3)
+    pdf = stats.norm.pdf(train_feature_3,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_3,pdf) #x axis y axis
+
     train_feature_4 = training_set[:,3]
+    plt.title("Forestfire feature 3: ISI Probability Distribution Function")
+    train_mean = np.mean(train_feature_4)
+    train_std = np.std(train_feature_4)
+    pdf = stats.norm.pdf(train_feature_4,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_4,pdf) #x axis y axis
+
     train_feature_5 = training_set[:,4]
+    plt.title("Forestfire feature 4: temp Probability Distribution Function")
+    train_mean = np.mean(train_feature_5)
+    train_std = np.std(train_feature_5)
+    pdf = stats.norm.pdf(train_feature_5,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_5,pdf) #x axis y axis
+
     train_feature_6 = training_set[:,5]
+    plt.title("Forestfire feature 5: RH Probability Distribution Function")
+    train_mean = np.mean(train_feature_6)
+    train_std = np.std(train_feature_6)
+    pdf = stats.norm.pdf(train_feature_6,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_6,pdf) #x axis y axis
+
     train_feature_7 = training_set[:,6]
+    plt.title("Forestfire feature 6: wind Probability Distribution Function")
+    train_mean = np.mean(train_feature_7)
+    train_std = np.std(train_feature_7)
+    pdf = stats.norm.pdf(train_feature_7,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_7,pdf) #x axis y axis
+
     train_feature_8 = training_set[:,7]
-    freq, border = np.histogram(train_feature_1,bins=49)
-    freq, border = np.histogram(train_feature_1,bins=49)
-    plt.plot(freq,border)
+    plt.title("Forestfire feature 8: rain Probability Distribution Function")
+    train_mean = np.mean(train_feature_8)
+    train_std = np.std(train_feature_8)
+    pdf = stats.norm.pdf(train_feature_8,train_mean,train_std) #use the scipy pdf function to show it
+    plt.plot(train_feature_8,pdf) #x axis y axis
+
     plt.show()
     input()
 
