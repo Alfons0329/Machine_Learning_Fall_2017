@@ -1,9 +1,12 @@
 from sklearn.naive_bayes import GaussianNB
 from sklearn.naive_bayes import MultinomialNB
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+import random as rn
+import numpy as np
 import sklearn.naive_bayes
 import csv
 import sys
-import random as rn
 training_set = []
 training_set_predicted = []
 testing_set = []
@@ -70,6 +73,28 @@ C : array, shape = [n_samples]
 Predicted target values for X
 http://blog.csdn.net/jinping_shi/article/details/51771867
 """
+def draw_PDF():
+    global training_set
+    global training_set_predicted
+    global testing_set
+    global testing_set_predicted
+    training_set = np.array(training_set)
+    plt.figure() #make an empty canvas
+
+    for i in range(0,4):
+        tf = training_set[:,i]
+        tf.sort()
+        plt.title(f' feature {i+1}: PDF')
+        mean = np.mean(tf)
+        std = np.std(tf)
+        pdf = stats.norm.pdf(tf,mean,std)
+        plt.subplot(2,2,i+1)
+        plt.plot(tf,pdf)
+
+    plt.tight_layout()
+    plt.savefig("PDF.png",dpi=600)
+    plt.show()
+
 def validate():
     #traing the model using GaussianNB
     global training_set
@@ -108,3 +133,4 @@ def validate():
 if __name__ == '__main__':
     preprocesing()
     validate()
+    draw_PDF()
