@@ -82,8 +82,6 @@ def draw_PDF():
     plt.savefig("PDF.png",dpi=600)
     plt.show()
 
-
-
 if __name__ == '__main__':
     preprocesing()
     draw_PDF()
