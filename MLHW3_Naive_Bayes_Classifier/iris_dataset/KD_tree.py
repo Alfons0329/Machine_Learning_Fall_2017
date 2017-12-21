@@ -1,7 +1,7 @@
 import naive_bayes_classifier as nbc#my module
 import sklearn.neighbors as sknn
 import numpy as np
-training_set, training_set_predicted, testing_set, testing_set_predicted = nbc.preprocesing()
+training_set, training_set_predicted, testing_set, testing_set_predicted = nbc.preprocessing()
 tree = sknn.KDTree(training_set)
 correct_prediction = 0
 dist, nearest_index = tree.query(testing_set, k=2)#other than itself

@@ -11,7 +11,7 @@ training_set = []
 training_set_predicted = []
 testing_set = []
 testing_set_predicted = []
-def preprocesing():
+def preprocessing():
     train_filename = sys.argv[1]
     testing_filename = sys.argv[2]
     global training_set
@@ -131,6 +131,6 @@ def validate():
     print("Multinomial Naive Bayes Classifier Accuracy:",float(correct_prediction)/float(len(testing_set)))
 
 if __name__ == '__main__':
-    preprocesing()
+    preprocessing()
     validate()
     draw_PDF()

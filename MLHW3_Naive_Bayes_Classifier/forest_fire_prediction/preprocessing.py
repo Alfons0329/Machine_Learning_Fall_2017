@@ -14,7 +14,7 @@ training_set = []
 training_set_predicted = []
 testing_set = []
 testing_set_predicted = []
-def preprocesing():
+def preprocessing():
     train_filename = sys.argv[1]
     testing_filename = sys.argv[2]
     global training_set
@@ -51,10 +51,10 @@ def preprocesing():
         if testing_set[i][len(testing_set[i])-1]: #prevent log(0) math domain exception
             testing_set[i][len(testing_set[i])-1] = int(math.log10(testing_set[i][len(testing_set[i])-1]))
         else:
-            training_set[i][len(training_set[i])-1] = int(training_set[i][len(training_set[i])-1])
+            testing_set[i][len(testing_set[i])-1] = int(testing_set[i][len(testing_set[i])-1])
             #logarithmic transformation of the last data, since it is quite skew
 
-        testing_set_predicted.append(testing_set[i][len(training_set[i])-1])
+        testing_set_predicted.append(testing_set[i][len(testing_set[i])-1])
         testing_set[i] = testing_set[i][4:12] #move the class away [4,12)
 
     return training_set, training_set_predicted, testing_set, testing_set_predicted
@@ -67,7 +67,7 @@ def draw_PDF():
     training_set = np.array(training_set)#temporary convert to numpy array for plotting the pdf
 
     plt.figure() #make an empty canvas
-    print(training_set_predicted)
+    #print(training_set_predicted)
     for i in range(0,8):
         tf = training_set[:,i]
         tf.sort()
@@ -83,5 +83,5 @@ def draw_PDF():
     plt.show()
 
 if __name__ == '__main__':
-    preprocesing()
+    preprocessing()
     draw_PDF()
