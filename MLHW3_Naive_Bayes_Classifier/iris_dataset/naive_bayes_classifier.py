@@ -128,7 +128,7 @@ def validate():
         if(predicted_class == original_class):
             correct_prediction += 1
     print("Multinomial Naive Bayes Classifier Accuracy:",float(correct_prediction)/float(len(testing_set)))
-####################    #####################################################################################################################
+############################################################################################################################################
     predicted_class_set = []
 
     gnb = BernoulliNB(alpha = 1) #using the "alpha = 1" param setting to set the laplacian smoothing

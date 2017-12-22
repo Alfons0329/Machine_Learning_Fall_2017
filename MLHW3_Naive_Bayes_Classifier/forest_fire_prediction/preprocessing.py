@@ -80,7 +80,7 @@ def draw_PDF():
 
     plt.tight_layout()
     plt.savefig("PDF.png",dpi=600)
-    plt.show()
+    #plt.show()
 
 if __name__ == '__main__':
     preprocessing()
