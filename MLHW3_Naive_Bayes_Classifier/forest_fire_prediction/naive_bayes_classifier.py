@@ -11,7 +11,7 @@ training_set = []
 training_set_predicted = []
 testing_set = []
 testing_set_predicted = []
-training_set, training_set_predicted, testing_set, testing_set_predicted  = pre.preprocessing()
+training_set, training_set_predicted, testing_set, testing_set_predicted, training_set_predicted_unlog, testing_set_predicted_unlog  = pre.preprocessing()
 def validate():
     #traing the model using GaussianNB
     global training_set

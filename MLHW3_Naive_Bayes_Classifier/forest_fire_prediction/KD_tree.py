@@ -1,7 +1,7 @@
 import preprocessing as pre #my module
 import sklearn.neighbors as sknn
 import numpy as np
-training_set, training_set_predicted, testing_set, testing_set_predicted = pre.preprocessing()
+training_set, training_set_predicted, testing_set, testing_set_predicted, training_set_predicted_unlog, testing_set_predicted_unlog = pre.preprocessing()
 tree = sknn.KDTree(training_set)
 correct_prediction = 0
 dist, nearest_index = tree.query(testing_set, k=2)#other than itself

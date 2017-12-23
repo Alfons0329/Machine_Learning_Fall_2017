@@ -12,8 +12,10 @@ import sys
 import math
 training_set = []
 training_set_predicted = []
+training_set_predicted_unlog = []
 testing_set = []
 testing_set_predicted = []
+testing_set_predicted_unlog = []
 def preprocessing():
     train_filename = sys.argv[1]
     testing_filename = sys.argv[2]
@@ -21,7 +23,8 @@ def preprocessing():
     global training_set_predicted
     global testing_set
     global testing_set_predicted
-
+    global training_set_predicted_unlog
+    global testing_set_predicted_unlog
     with open(train_filename,'r') as opened_file: #use r for reading a file
         parsed_data = csv.reader(opened_file)
         training_set = list(parsed_data)
@@ -35,6 +38,7 @@ def preprocessing():
         for j in range (4,len(training_set[i])):
             training_set[i][j] = float(training_set[i][j])
 
+        training_set_predicted_unlog.append(training_set[i][len(training_set[i])-1])
         if training_set[i][len(training_set[i])-1]: #prevent log(0) math domain exception
             training_set[i][len(training_set[i])-1] = int(math.log10(training_set[i][len(training_set[i])-1]))
         else:
@@ -48,6 +52,7 @@ def preprocessing():
         for j in range (4,len(testing_set[i])):
             testing_set[i][j] = float(testing_set[i][j])
 
+        testing_set_predicted_unlog.append(testing_set[i][len(testing_set[i])-1])
         if testing_set[i][len(testing_set[i])-1]: #prevent log(0) math domain exception
             testing_set[i][len(testing_set[i])-1] = int(math.log10(testing_set[i][len(testing_set[i])-1]))
         else:
@@ -57,13 +62,13 @@ def preprocessing():
         testing_set_predicted.append(testing_set[i][len(testing_set[i])-1])
         testing_set[i] = testing_set[i][4:12] #move the class away [4,12)
 
-    return training_set, training_set_predicted, testing_set, testing_set_predicted
+    return training_set, training_set_predicted, testing_set, testing_set_predicted, training_set_predicted_unlog, testing_set_predicted_unlog
 
 def draw_PDF():
     global training_set
-    global training_set_predicted
-    global testing_set
-    global testing_set_predicted
+    #global training_set_predicted
+    #global testing_set
+    #global testing_set_predicted
     training_set = np.array(training_set)#temporary convert to numpy array for plotting the pdf
 
     plt.figure() #make an empty canvas
