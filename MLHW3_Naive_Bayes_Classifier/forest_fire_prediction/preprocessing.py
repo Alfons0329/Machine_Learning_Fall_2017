@@ -39,7 +39,7 @@ def preprocessing():
             training_set[i][j] = float(training_set[i][j])
 
         training_set_predicted_unlog.append(training_set[i][len(training_set[i])-1])
-        if training_set[i][len(training_set[i])-1]: #prevent log(0) math domain exception
+        if training_set[i][len(training_set[i])-1] != 0.0: #prevent log(0) math domain exception
             training_set[i][len(training_set[i])-1] = int(math.log10(training_set[i][len(training_set[i])-1]))
         else:
             training_set[i][len(training_set[i])-1] = int(training_set[i][len(training_set[i])-1])
@@ -53,7 +53,7 @@ def preprocessing():
             testing_set[i][j] = float(testing_set[i][j])
 
         testing_set_predicted_unlog.append(testing_set[i][len(testing_set[i])-1])
-        if testing_set[i][len(testing_set[i])-1]: #prevent log(0) math domain exception
+        if testing_set[i][len(testing_set[i])-1] != 0.0: #prevent log(0) math domain exception
             testing_set[i][len(testing_set[i])-1] = int(math.log10(testing_set[i][len(testing_set[i])-1]))
         else:
             testing_set[i][len(testing_set[i])-1] = int(testing_set[i][len(testing_set[i])-1])
@@ -79,7 +79,6 @@ def draw_PDF():
         plt.subplot(2,4,i+1)
         if i == 7:
             plt.hist(tf, bins = [0,5,10])
-            print("i is 7")
         else:
             plt.hist(tf, bins = 'auto')
 

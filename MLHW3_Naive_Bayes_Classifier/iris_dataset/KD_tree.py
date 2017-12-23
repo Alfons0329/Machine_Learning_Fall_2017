@@ -21,7 +21,8 @@ for i in range(len(testing_set)):
     training_set, where size is out of that of the testing_set, it definitely triggers SIGSEGV!
     ######################################################################################################################
     """
-    predicted_class = training_set_predicted[nearest_index[i][0]]
+    predicted_class = training_set_predicted[nearest_index[i][1]]
+    #print(" self",testing_set[i]," NN self ",nearest_index[i][0]," NN not self ",nearest_index[i][1])
     #print("testing set",i," ",testing_set[i],"original_class ",original_class,"predicted_class",predicted_class)
     if(predicted_class == original_class):
         correct_prediction += 1
