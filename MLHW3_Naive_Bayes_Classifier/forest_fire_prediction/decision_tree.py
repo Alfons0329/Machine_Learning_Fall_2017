@@ -34,14 +34,14 @@ for i in range (len(testing_set)): #now the class become the continuous value
     if(predicted_class_set[i]): #prevent math domain error of log 0
         predicted_class = int(math.log10(predicted_class_set[i]))
     else:
-        predicted_class = predicted_class_set[i]
+        predicted_class = int(predicted_class_set[i])
 
     if(predicted_class == original_class):
         correct_prediction += 1
-    #print("original_class ",original_class_cts," predicted_class ",predicted_class_cts," original_class_cts ",original_class_cts," predicted_class_cts",predicted_class_cts)
+    print("original_class ",original_class," predicted_class (by log10 transform) ",predicted_class," original_class_cts ",original_class_cts," predicted_class_cts",predicted_class_cts)
     absolute_error += (original_class_cts - predicted_class_cts)*(original_class_cts - predicted_class_cts)
 
-print("Decision Tree Regressor L2 Error:",float(correct_prediction)/float(len(testing_set)))
+print("Decision Tree Regressor L2-Norm Error:",absolute_error)
 print("Decision Tree Regressor Accuracy(Converted to class using log10 base conversion):",float(correct_prediction)/float(len(testing_set)))
 
 #############################################My notes here#################################################
