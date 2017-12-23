@@ -83,16 +83,12 @@ def draw_PDF():
     for i in range(0,4):
         tf = training_set[:,i]
         tf.sort()
-        plt.title(f' feature {i+1}: PDF')
-        mean = np.mean(tf)
-        std = np.std(tf)
-        pdf = stats.norm.pdf(tf,mean,std)
         plt.subplot(2,2,i+1)
-        plt.plot(tf,pdf)
-
+        plt.hist(tf, bins = 'auto')
+        plt.title(f' feature {i+1}: PDF')
     plt.tight_layout()
     plt.savefig("PDF.png",dpi=600)
-    #plt.show()
+
 
 def validate():
     #traing the model using GaussianNB

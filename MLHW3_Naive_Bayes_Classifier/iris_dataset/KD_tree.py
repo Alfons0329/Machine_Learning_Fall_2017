@@ -12,7 +12,7 @@ for i in range(len(testing_set)):
     #####################################################################################################################
     NOTE!!! SEGMENTATION FAULT WILL HAPPEN HERE!!!
     THE QUERY RESULT SHOULD ACQUIRE FROM
-    training_set_predicted[nearest_index[i][0]]
+        training_set_predicted[nearest_index[i][0]]
     RATHER THAN
     testing_setd[nearest_index[i][0]]
     reason is that since the KNN Algorithm search the nearest neighbors,
