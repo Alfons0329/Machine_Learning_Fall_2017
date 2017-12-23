@@ -84,7 +84,8 @@ def draw_PDF():
         tf = training_set[:,i]
         tf.sort()
         plt.subplot(2,2,i+1)
-        plt.hist(tf, bins = 'auto')
+        weight_percent = np.ones_like(tf)/float(len(tf))
+        plt.hist(tf, weights = weight_percent)
         plt.title(f' feature {i+1}: PDF')
     plt.tight_layout()
     plt.savefig("PDF.png",dpi=600)
