@@ -9,6 +9,8 @@ dt = tree.DecisionTreeClassifier()
 dt.fit(training_set, training_set_predicted)
 correct_prediction = 0
 predicted_class_set = dt.predict(testing_set)
+#print("testing_set_target",testing_set_predicted)
+#print("testing_set actually predicted",predicted_class_set)
 for i in range(len(testing_set)):
     original_class = testing_set_predicted[i]
     predicted_class = predicted_class_set[i]

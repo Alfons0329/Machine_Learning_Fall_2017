@@ -77,10 +77,11 @@ def draw_PDF():
         tf = training_set[:,i]
         tf.sort()
         plt.subplot(2,4,i+1)
+        weight_percent = np.ones_like(tf)/float(len(tf))
         if i == 7:
-            plt.hist(tf, bins = [0,5,10])
+            plt.hist(tf, weights = weight_percent)
         else:
-            plt.hist(tf, bins = 'auto')
+            plt.hist(tf, weights = weight_percent)
 
         plt.title(f' feature {i+1}: PDF')
 
