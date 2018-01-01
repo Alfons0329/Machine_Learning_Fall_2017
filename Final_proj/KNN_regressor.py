@@ -1,16 +1,23 @@
 import numpy as np
-from sklearn import neighbors
-
+import sklearn.neighbors as sknn
+import matplotlib.pyplot as plt
+import math
 """
-Preprocessing part credit to teammate lincw6666 by turning the discrete data into the continuous one for regressor
+Preprocessing part credit to teammate lincw6666 by turning the discrete data into the continuous one for regressor,
+thanks to him for his great work :)
+KNN Regressor by myself
 
+Further discussion--> the preprocessed data-->fit into normal distribution and remove +-3stddevc data?
 """
+#Define the max neighbor count
+neighbor_cnt_arr = [2,5,10,20,50,100]
+MAX_NEIGHBOR_CNT = 5
+PERMITTED_ERR_RANGE = 1000
 #Column pos in the original train dataset
 MAKER = 0
 MODEL = 1
 TRANS = 6
 FUEL  = 9
-
 discrete_feature_name = ['maker', 'model', 'trans', 'fuel']
 discrete_feature_pos = [ MAKER, MODEL, TRANS, FUEL ]
 # function: getData
@@ -20,6 +27,7 @@ def getData(fp):
 # function: getListFeature
 def getListFeature(train_data, features):
     #Discrete feature pos 0,1,6,9
+    #Concanete the each row's row train_data[row][0] [1] [6] [9]--->use the set
     return [ list(set([ now[i] for now in train_data ])) for i in features ]
 
 # function: getFeatureAvgPrice
@@ -28,14 +36,9 @@ def getFeatureAvgPrice(train_data, list_feature, features):
     # init a 2d list num_feature calculate how many object in that feature corresponding to each member
     num_feature = [ [ 0.0 for data in list_feature[i] ] for i in range(len(list_feature)) ]
     avg_feature = [ [ 0.0 for data in list_feature[i] ] for i in range(len(list_feature)) ]
-    x = np.array(num_feature)
-    y = np.array(avg_feature)
     for data in train_data:
-        print("Cur data ",data,"\n");
-        input()
-        #Get the correspoding feature ID according to discrete_feature_name = ['maker', 'model', 'trans', 'fuel']
+        #Get the correspoding feature ID according to discrete_feature_name = ['maker', 'model', 'trans', 'fuel'], which is for i in features
         feature_id = [ list_feature[discrete_feature_pos.index(i)].index(data[i]) for i in features ]
-        #print("Feature id ",feature_id);
         for i in range(len(num_feature)):
             num_feature[i][feature_id[i]] = num_feature[i][feature_id[i]] + 1.0
         for i in range(len(avg_feature)):
@@ -60,7 +63,6 @@ def sortFeatureAvgPrice(avg):
 def buildDiscreteFeatureVal(train_data):
     # list all possible value of each feature
     list_feature = getListFeature(train_data, discrete_feature_pos)
-    #print("List feature \n",list_feature)
     # calculate the average price for the corresponding feature
     avg_feature = getFeatureAvgPrice(train_data, list_feature, discrete_feature_pos)
 
@@ -93,6 +95,29 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
                 data[i] = float(data[i])
     return origin_data, target
 
+def KNN_core(train_data, train_target, test_data, test_target):
+    #Plotting the graph of N-Neighbor vs Accuracy
+    x_axis_nei_cnt = [] #The x-axis of the plotting dataset
+    y_axis_nei_cnt = [] #The y-axis of the plotting dataset
+    for neighbor_cnt in range(2,MAX_NEIGHBOR_CNT+1):
+        regr = sknn.KNeighborsRegressor(n_neighbors = neighbor_cnt)
+        regr.fit(train_data, train_target)
+        predicted_result = regr.predict(test_data)
+        #Check the absolute error by calculating the abs(real_price eur - predict_price eur)
+        #The predicted result is the continuous data
+        #print(predicted_result)
+        #input()
+        x_axis_nei_cnt.append(neighbor_cnt)
+        permitted_error_satisfied_cnt = 0
+        for i in range(len(predicted_result)):
+            absolute_error = abs(predicted_result[i] - test_target[i])
+            if absolute_error <= PERMITTED_ERR_RANGE:
+                permitted_error_satisfied_cnt+=1
+
+        y_axis_nei_cnt.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
+        print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within 1000 eur of actual price")
+        plt.plot(x_axis_nei_cnt, y_axis_nei_cnt)
+        plt.savefig("KNN_result.png",dpi=600)
 
 if __name__ == '__main__':
     fp_train = open("train.csv", "r")
@@ -104,3 +129,4 @@ if __name__ == '__main__':
     # get testing data
     test_data = getData(fp_test)
     test_data, test_target = preprocessing(test_data, list_feature, val_feature, discrete_feature_pos)
+    KNN_core(train_data, train_target, test_data, test_target)
