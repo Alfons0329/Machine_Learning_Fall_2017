@@ -11,9 +11,10 @@ KNN Regressor by myself
 Further discussion--> the preprocessed data-->fit into normal distribution and remove +-3stddevc data?
 """
 #Define the max neighbor count
-neighbor_cnt_arr = [1,2]#,5,10,20,50,100]
+neighbor_cnt_arr = [1,2,5,10,20,50,100]
 MAX_NEIGHBOR_CNT = 5
-PERMITTED_ERR_RANGE = 500
+PERMITTED_ERR_RANGE = 1000
+STDDEV_RANGE = 2
 #Column pos in the original train dataset for the continuous data
 continuous_feature_pos = [2,3,4,5]
 x_axis_nei_cnt = [] #The x-axis of the plotting dataset
@@ -115,11 +116,13 @@ def extremity_optimization(train_data, train_target):
     #only push the data where the cts data all satisfied the normal distribution
     for train_data_iter in range(len(train_data)):
         for i in continuous_feature_pos:
-            if train_data[train_data_iter][i] < mean_arr[i] - 3*stddev_arr[i] or train_data[train_data_iter][i] > mean_arr[i] + 3*stddev_arr[i]: #Check the range
+            if train_data[train_data_iter][i] < mean_arr[i] - STDDEV_RANGE*stddev_arr[i] or train_data[train_data_iter][i] > mean_arr[i] + STDDEV_RANGE*stddev_arr[i]: #Check the range
                 range_satisfied = 0
         if range_satisfied == 1:
             optimized_train_data.append(train_data[train_data_iter])
             optimized_train_target.append(train_target[train_data_iter])
+
+        range_satisfied = 1
 
     return optimized_train_data, optimized_train_target
 
@@ -132,7 +135,7 @@ def KNN_core(train_data, train_target, test_data, test_target):
     tmp_y = []
     global x_axis_nei_cnt
     global y_axis_acc_cnt
-
+    print("Training_data count ",len(train_data))
     for neighbor_cnt in neighbor_cnt_arr: #range(2,MAX_NEIGHBOR_CNT+1):
         regr = sknn.KNeighborsRegressor(n_neighbors = neighbor_cnt)
         regr.fit(train_data, train_target)
@@ -149,7 +152,7 @@ def KNN_core(train_data, train_target, test_data, test_target):
                 permitted_error_satisfied_cnt+=1
 
         tmp_y.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
-        print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within 1000 eur of actual price")
+        print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within ",PERMITTED_ERR_RANGE," eur of actual price")
 
     x_axis_nei_cnt.append(tmp_x)
     y_axis_acc_cnt.append(tmp_y)
@@ -159,8 +162,8 @@ def plot_all_result():
     global y_axis_acc_cnt
 
     for i in range(len(x_axis_nei_cnt)):
-        print(x_axis_nei_cnt[i], y_axis_nei_cnt[i])
-        plt.plot(x_axis_nei_cnt[i], y_axis_nei_cnt[i])
+        print(x_axis_nei_cnt[i], y_axis_acc_cnt[i])
+        plt.plot(x_axis_nei_cnt[i], y_axis_acc_cnt[i])
 
     plt.savefig("KNN_result.png",dpi=600)
 
@@ -177,6 +180,7 @@ if __name__ == '__main__':
     KNN_core(train_data, train_target, test_data, test_target)
     #Do the optimization~ filter the extermity
     optimized_train_data, optimized_train_target = extremity_optimization(train_data, train_target)
+    #print("OTD ",optimized_train_data," \nOTT",optimized_train_target)
     KNN_core(optimized_train_data, optimized_train_target, test_data, test_target)
 
     plot_all_result()
