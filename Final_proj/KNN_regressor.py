@@ -10,9 +10,9 @@ KNN Regressor by myself
 Further discussion--> the preprocessed data-->fit into normal distribution and remove +-3stddevc data?
 """
 #Define the max neighbor count
-neighbor_cnt_arr = [2,5,10,20,50,100]
+neighbor_cnt_arr = [1,2,5,10,20,50,100]
 MAX_NEIGHBOR_CNT = 5
-PERMITTED_ERR_RANGE = 1000
+PERMITTED_ERR_RANGE = 500
 #Column pos in the original train dataset
 MAKER = 0
 MODEL = 1
@@ -94,12 +94,13 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
             else:
                 data[i] = float(data[i])
     return origin_data, target
-
+def data_optimization(train_data):
+    return 0
 def KNN_core(train_data, train_target, test_data, test_target):
     #Plotting the graph of N-Neighbor vs Accuracy
     x_axis_nei_cnt = [] #The x-axis of the plotting dataset
     y_axis_nei_cnt = [] #The y-axis of the plotting dataset
-    for neighbor_cnt in range(2,MAX_NEIGHBOR_CNT+1):
+    for neighbor_cnt in neighbor_cnt_arr: #range(2,MAX_NEIGHBOR_CNT+1):
         regr = sknn.KNeighborsRegressor(n_neighbors = neighbor_cnt)
         regr.fit(train_data, train_target)
         predicted_result = regr.predict(test_data)
@@ -116,8 +117,9 @@ def KNN_core(train_data, train_target, test_data, test_target):
 
         y_axis_nei_cnt.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
         print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within 1000 eur of actual price")
-        plt.plot(x_axis_nei_cnt, y_axis_nei_cnt)
-        plt.savefig("KNN_result.png",dpi=600)
+    print(x_axis_nei_cnt, y_axis_nei_cnt)
+    plt.plot(x_axis_nei_cnt, y_axis_nei_cnt)
+    plt.savefig("KNN_result.png",dpi=600)
 
 if __name__ == '__main__':
     fp_train = open("train.csv", "r")
