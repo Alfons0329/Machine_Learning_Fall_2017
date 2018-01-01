@@ -11,7 +11,7 @@ KNN Regressor by myself
 Further discussion--> the preprocessed data-->fit into normal distribution and remove +-3stddevc data?
 """
 #Define the max neighbor count
-neighbor_cnt_arr = [1,2,5,10,20,50,100]
+neighbor_cnt_arr = [1,2]#,5,10,20,50,100]
 MAX_NEIGHBOR_CNT = 5
 PERMITTED_ERR_RANGE = 500
 #Column pos in the original train dataset for the continuous data
@@ -101,8 +101,8 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
     return origin_data, target
 
 def extremity_optimization(train_data, train_target):
-    stddev_arr = []
-    mean_arr = []
+    stddev_arr = [0.0 for i in range(10) ]
+    mean_arr = [0.0 for i in range(10) ]
     optimized_train_data = []
     optimized_train_target = []
     range_satisfied = 1
@@ -111,10 +111,11 @@ def extremity_optimization(train_data, train_target):
         stddev_arr[i] = (np.std(train_data[:,i]))
         mean_arr[i] = (np.mean(train_data[:,i]))
 
+    train_data.tolist()
     #only push the data where the cts data all satisfied the normal distribution
     for train_data_iter in range(len(train_data)):
         for i in continuous_feature_pos:
-            if train_data[train_data_iter] < mean_arr[i] - 3*stddev_arr[i] or train_data[train_data_iter] > mean_arr[i] + 3*stddev_arr[i]: #Check the range
+            if train_data[train_data_iter][i] < mean_arr[i] - 3*stddev_arr[i] or train_data[train_data_iter][i] > mean_arr[i] + 3*stddev_arr[i]: #Check the range
                 range_satisfied = 0
         if range_satisfied == 1:
             optimized_train_data.append(train_data[train_data_iter])
@@ -150,8 +151,8 @@ def KNN_core(train_data, train_target, test_data, test_target):
         tmp_y.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
         print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within 1000 eur of actual price")
 
-    x_axis_nei_cnt.appned(tmp_x)
-    y_axis_arr_cnt.append(tmp_y)
+    x_axis_nei_cnt.append(tmp_x)
+    y_axis_acc_cnt.append(tmp_y)
 
 def plot_all_result():
     global x_axis_nei_cnt
