@@ -16,7 +16,7 @@ MAX_NEIGHBOR_CNT = 5
 PERMITTED_ERR_RANGE = 1000
 STDDEV_RANGE = 2
 #Column pos in the original train dataset for the continuous data
-continuous_feature_pos = [2,3,4,5]
+continuous_feature_pos = [0,2,3,4,5]
 x_axis_nei_cnt = [] #The x-axis of the plotting dataset
 y_axis_acc_cnt = [] #The y-axis of the plotting dataset
 #Column pos in the original train dataset for the discrete data
