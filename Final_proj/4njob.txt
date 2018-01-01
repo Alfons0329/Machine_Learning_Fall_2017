@@ -1,0 +1,14 @@
+不用找出三大車廠惹 現在只要做出以下資料的pdf即可
+以下的attribute 有
+Maker: The manufacturer of that car
+Model: Model of the car
+Mileage: Distance the car has been driven
+Engine_displ: swept volume of all the pistons inside the cylinders of a reciprocating engine
+Engine_power: HP of such engine
+Door
+seat count
+Fuel_type: diesel or gasoline?
+Transmission
+manufacture_year
+因為我們的目標導向為 我們想要預測一個價格的誤差信賴區間大概有多準
+然後上台各自解釋自己的發現 就這樣
