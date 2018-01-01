@@ -13,7 +13,9 @@ Further discussion--> the preprocessed data-->fit into normal distribution and r
 neighbor_cnt_arr = [1,2,5,10,20,50,100]
 MAX_NEIGHBOR_CNT = 5
 PERMITTED_ERR_RANGE = 500
-#Column pos in the original train dataset
+#Column pos in the original train dataset for the continuous data
+continuous_feature_pos = [2,3,4,5]
+#Column pos in the original train dataset for the discrete data
 MAKER = 0
 MODEL = 1
 TRANS = 6
@@ -94,9 +96,13 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
             else:
                 data[i] = float(data[i])
     return origin_data, target
-def data_optimization(train_data):
-    return 0
-def KNN_core(train_data, train_target, test_data, test_target):
+def extremity_optimization(train_data, train_target):
+
+    return optimized_train_data, optimized_train_target
+def correlation_optimization(train_data, train_target):
+
+    return optimized_train_data, optimized_train_target
+def KNN_core(train_data, train_target, test_data, test_target, optimized_train_data, optimized_train_target):
     #Plotting the graph of N-Neighbor vs Accuracy
     x_axis_nei_cnt = [] #The x-axis of the plotting dataset
     y_axis_nei_cnt = [] #The y-axis of the plotting dataset
@@ -120,7 +126,9 @@ def KNN_core(train_data, train_target, test_data, test_target):
     print(x_axis_nei_cnt, y_axis_nei_cnt)
     plt.plot(x_axis_nei_cnt, y_axis_nei_cnt)
     plt.savefig("KNN_result.png",dpi=600)
+def plot_all_result():
 
+    return 0
 if __name__ == '__main__':
     fp_train = open("train.csv", "r")
     fp_test = open("test.csv", "r")
@@ -131,4 +139,6 @@ if __name__ == '__main__':
     # get testing data
     test_data = getData(fp_test)
     test_data, test_target = preprocessing(test_data, list_feature, val_feature, discrete_feature_pos)
-    KNN_core(train_data, train_target, test_data, test_target)
+    #Do the optimization~ filter the extermity
+    optimized_train_data, optimized_train_target = extremity_optimization(train_data, train_target)
+    KNN_core(train_data, train_target, test_data, test_target, optimized_train_data, optimized_train_target)
