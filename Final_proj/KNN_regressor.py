@@ -5,6 +5,7 @@ from sklearn import neighbors
 Preprocessing part credit to teammate lincw6666 by turning the discrete data into the continuous one for regressor
 
 """
+#Column pos in the original train dataset
 MAKER = 0
 MODEL = 1
 TRANS = 6
@@ -18,19 +19,23 @@ def getData(fp):
 
 # function: getListFeature
 def getListFeature(train_data, features):
+    #Discrete feature pos 0,1,6,9
     return [ list(set([ now[i] for now in train_data ])) for i in features ]
 
 # function: getFeatureAvgPrice
 def getFeatureAvgPrice(train_data, list_feature, features):
     # calculate average of price corresponding to maker, model, transmission, fuel type
-    # init a 2d list
-    print(train_data)
-    print(list_feature)
-    print(features)
+    # init a 2d list num_feature calculate how many object in that feature corresponding to each member
     num_feature = [ [ 0.0 for data in list_feature[i] ] for i in range(len(list_feature)) ]
     avg_feature = [ [ 0.0 for data in list_feature[i] ] for i in range(len(list_feature)) ]
+    x = np.array(num_feature)
+    y = np.array(avg_feature)
     for data in train_data:
+        print("Cur data ",data,"\n");
+        input()
+        #Get the correspoding feature ID according to discrete_feature_name = ['maker', 'model', 'trans', 'fuel']
         feature_id = [ list_feature[discrete_feature_pos.index(i)].index(data[i]) for i in features ]
+        #print("Feature id ",feature_id);
         for i in range(len(num_feature)):
             num_feature[i][feature_id[i]] = num_feature[i][feature_id[i]] + 1.0
         for i in range(len(avg_feature)):
@@ -55,7 +60,7 @@ def sortFeatureAvgPrice(avg):
 def buildDiscreteFeatureVal(train_data):
     # list all possible value of each feature
     list_feature = getListFeature(train_data, discrete_feature_pos)
-
+    #print("List feature \n",list_feature)
     # calculate the average price for the corresponding feature
     avg_feature = getFeatureAvgPrice(train_data, list_feature, discrete_feature_pos)
 
@@ -88,7 +93,6 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
                 data[i] = float(data[i])
     return origin_data, target
 
-def KNN_regressor():
 
 if __name__ == '__main__':
     fp_train = open("train.csv", "r")
