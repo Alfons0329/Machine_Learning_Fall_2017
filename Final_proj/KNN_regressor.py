@@ -1,6 +1,7 @@
 import numpy as np
 import sklearn.neighbors as sknn
 import matplotlib.pyplot as plt
+import scipy.stats as stat
 import math
 """
 Preprocessing part credit to teammate lincw6666 by turning the discrete data into the continuous one for regressor,
@@ -15,6 +16,8 @@ MAX_NEIGHBOR_CNT = 5
 PERMITTED_ERR_RANGE = 500
 #Column pos in the original train dataset for the continuous data
 continuous_feature_pos = [2,3,4,5]
+x_axis_nei_cnt = [] #The x-axis of the plotting dataset
+y_axis_acc_cnt = [] #The y-axis of the plotting dataset
 #Column pos in the original train dataset for the discrete data
 MAKER = 0
 MODEL = 1
@@ -96,16 +99,39 @@ def preprocessing(origin_data, list_feature, val_feature, discrete_features):
             else:
                 data[i] = float(data[i])
     return origin_data, target
+
 def extremity_optimization(train_data, train_target):
+    stddev_arr = []
+    mean_arr = []
+    optimized_train_data = []
+    optimized_train_target = []
+    range_satisfied = 1
+    train_data = np.array(train_data)
+    for i in continuous_feature_pos:
+        stddev_arr[i] = (np.std(train_data[:,i]))
+        mean_arr[i] = (np.mean(train_data[:,i]))
+
+    #only push the data where the cts data all satisfied the normal distribution
+    for train_data_iter in range(len(train_data)):
+        for i in continuous_feature_pos:
+            if train_data[train_data_iter] < mean_arr[i] - 3*stddev_arr[i] or train_data[train_data_iter] > mean_arr[i] + 3*stddev_arr[i]: #Check the range
+                range_satisfied = 0
+        if range_satisfied == 1:
+            optimized_train_data.append(train_data[train_data_iter])
+            optimized_train_target.append(train_target[train_data_iter])
 
     return optimized_train_data, optimized_train_target
+
 def correlation_optimization(train_data, train_target):
-
     return optimized_train_data, optimized_train_target
-def KNN_core(train_data, train_target, test_data, test_target, optimized_train_data, optimized_train_target):
+
+def KNN_core(train_data, train_target, test_data, test_target):
     #Plotting the graph of N-Neighbor vs Accuracy
-    x_axis_nei_cnt = [] #The x-axis of the plotting dataset
-    y_axis_nei_cnt = [] #The y-axis of the plotting dataset
+    tmp_x = []
+    tmp_y = []
+    global x_axis_nei_cnt
+    global y_axis_acc_cnt
+
     for neighbor_cnt in neighbor_cnt_arr: #range(2,MAX_NEIGHBOR_CNT+1):
         regr = sknn.KNeighborsRegressor(n_neighbors = neighbor_cnt)
         regr.fit(train_data, train_target)
@@ -114,21 +140,29 @@ def KNN_core(train_data, train_target, test_data, test_target, optimized_train_d
         #The predicted result is the continuous data
         #print(predicted_result)
         #input()
-        x_axis_nei_cnt.append(neighbor_cnt)
+        tmp_x.append(neighbor_cnt)
         permitted_error_satisfied_cnt = 0
         for i in range(len(predicted_result)):
             absolute_error = abs(predicted_result[i] - test_target[i])
             if absolute_error <= PERMITTED_ERR_RANGE:
                 permitted_error_satisfied_cnt+=1
 
-        y_axis_nei_cnt.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
+        tmp_y.append(float(permitted_error_satisfied_cnt)/float(len(test_target)))
         print("KNN with K= ",neighbor_cnt," There is ",float(permitted_error_satisfied_cnt)/float(len(test_target))," that the predict price is within 1000 eur of actual price")
-    print(x_axis_nei_cnt, y_axis_nei_cnt)
-    plt.plot(x_axis_nei_cnt, y_axis_nei_cnt)
-    plt.savefig("KNN_result.png",dpi=600)
-def plot_all_result():
 
-    return 0
+    x_axis_nei_cnt.appned(tmp_x)
+    y_axis_arr_cnt.append(tmp_y)
+
+def plot_all_result():
+    global x_axis_nei_cnt
+    global y_axis_acc_cnt
+
+    for i in range(len(x_axis_nei_cnt)):
+        print(x_axis_nei_cnt[i], y_axis_nei_cnt[i])
+        plt.plot(x_axis_nei_cnt[i], y_axis_nei_cnt[i])
+
+    plt.savefig("KNN_result.png",dpi=600)
+
 if __name__ == '__main__':
     fp_train = open("train.csv", "r")
     fp_test = open("test.csv", "r")
@@ -139,6 +173,10 @@ if __name__ == '__main__':
     # get testing data
     test_data = getData(fp_test)
     test_data, test_target = preprocessing(test_data, list_feature, val_feature, discrete_feature_pos)
+    KNN_core(train_data, train_target, test_data, test_target)
     #Do the optimization~ filter the extermity
     optimized_train_data, optimized_train_target = extremity_optimization(train_data, train_target)
-    KNN_core(train_data, train_target, test_data, test_target, optimized_train_data, optimized_train_target)
+    KNN_core(optimized_train_data, optimized_train_target, test_data, test_target)
+
+    plot_all_result()
+    #Do the optimization~ leave the required column only
