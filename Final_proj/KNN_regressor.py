@@ -136,7 +136,7 @@ def KNN_core(train_data, train_target, test_data, test_target):
     global x_axis_nei_cnt
     global y_axis_acc_cnt
     print("Training_data count ",len(train_data))
-    for neighbor_cnt in neighbor_cnt_arr: #range(2,MAX_NEIGHBOR_CNT+1):
+    for neighbor_cnt in range(2,101):#neighbor_cnt_arr: #range(2,MAX_NEIGHBOR_CNT+1):
         regr = sknn.KNeighborsRegressor(n_neighbors = neighbor_cnt)
         regr.fit(train_data, train_target)
         predicted_result = regr.predict(test_data)
