@@ -109,5 +109,16 @@ class NaiveTrain {
     );
     bayes.setTargetCount(8);
     bayes.fit(trainData);
+
+    puts("Reading testing data");
+    arrList = readDataset(testFile);
+    if (null == arrList) return ;
+    NaiveRecord[] testData = new NaiveRecord[arrList.size()];
+    arrList.toArray(testData);
+    puts("Discretizing price");
+    TellMePriceRange(testData);
+
+    puts("Testing");
+    bayes.predict(testData);
   }
 }
