@@ -20,7 +20,6 @@ class GaussianFeature {
     for (int i = 0; i < dat.length; i++) {
       int y = dat[i].target;
       m_avg[y] += dat[i].num[m_featId];
-      freq[y]++;
     }
     for (int i = 0; i < m_targetCount; i++) {
       m_avg[i] /= freq[i];
@@ -35,7 +34,7 @@ class GaussianFeature {
     }
     m_logSigma = new double[m_targetCount];
     for (int i = 0; i < m_targetCount; i++) {
-      m_sigma[i] = Math.sqrt(m_sigma[i] / freq[i]);
+      m_sigma[i] = Math.sqrt(m_sigma[i] / (freq[i]-1));
       m_logSigma[i] = Math.log(m_sigma[i]);
     }
     for (int i = 0; i < m_targetCount; i++) {
