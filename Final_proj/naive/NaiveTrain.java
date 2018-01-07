@@ -108,6 +108,8 @@ class NaiveTrain {
       new GaussianFeature(3) // Engine_power
     );
     bayes.setDiscreteFeatures(
+      new CategoryFeature(0), // Maker
+      new CategoryFeature(1), // Model
       new CategoryFeature(2), // Transmission
       new CategoryFeature(3), // Door
       new CategoryFeature(4), // seat count
