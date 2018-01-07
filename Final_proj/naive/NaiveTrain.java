@@ -107,6 +107,12 @@ class NaiveTrain {
       new GaussianFeature(2), // Engine_displ
       new GaussianFeature(3) // Engine_power
     );
+    bayes.setDiscreteFeatures(
+      new CategoryFeature(2), // Transmission
+      new CategoryFeature(3), // Door
+      new CategoryFeature(4), // seat count
+      new CategoryFeature(5) // Fuel_type
+    );
     bayes.setTargetCount(8);
     bayes.fit(trainData);
 

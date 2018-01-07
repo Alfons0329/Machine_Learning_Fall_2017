@@ -1,6 +1,7 @@
 class NaiveClassifier {
   // my classmate says I only need Gaussian Naive Bayes
   private GaussianFeature[] continuousFeats;
+  private CategoryFeature[] discreteFeats;
   private int targetCount;
   private int[] freq; // freq[i] = occurrence of target i
   private double[] logProb;
@@ -8,13 +9,25 @@ class NaiveClassifier {
   // = Math.log(freq[i]) - Math.log(data size)
   // however, data size is a constant, so I can ignore that term
 
+  public NaiveClassifier() {
+    continuousFeats = new GaussianFeature[0];
+    discreteFeats = new CategoryFeature[0];
+  }
+
   public void setContinuousFeatures(GaussianFeature ... feats) {
     continuousFeats = feats;
+  }
+
+  public void setDiscreteFeatures(CategoryFeature ... feats) {
+    discreteFeats = feats;
   }
 
   public void setTargetCount(int n) {
     for (int i = 0; i < continuousFeats.length; i++) {
       continuousFeats[i].setTargetCount(n);
+    }
+    for (int i = 0; i < discreteFeats.length; i++) {
+      discreteFeats[i].setTargetCount(n);
     }
     targetCount = n;
   }
@@ -31,8 +44,12 @@ class NaiveClassifier {
     }
 
     for (int i = 0; i < continuousFeats.length; i++) {
-      System.out.println("Fitting continuous feature "+i);
+      System.out.println("Fitting continuous feature " + continuousFeats[i].getFeatId());
       continuousFeats[i].fit(data, freq);
+    }
+    for (int i = 0; i < discreteFeats.length; i++) {
+      System.out.println("Fitting discrete feature " + discreteFeats[i].getFeatId());
+      discreteFeats[i].fit(data, freq);
     }
   }
 
@@ -45,7 +62,10 @@ class NaiveClassifier {
       for (int y = 0; y < targetCount; y++) {
         double logP = logProb[y];
         for (int j = 0; j < continuousFeats.length; j++) {
-          logP += continuousFeats[j].getLogProb(data[i].num[j], y);
+          logP += continuousFeats[j].getLogProb(data[i], y);
+        }
+        for (int j = 0; j < discreteFeats.length; j++) {
+          logP += discreteFeats[j].getLogProb(data[i], y);
         }
         if (logP > maxLogP) {
           best = y;

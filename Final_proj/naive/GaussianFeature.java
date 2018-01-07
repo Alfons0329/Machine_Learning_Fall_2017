@@ -13,6 +13,10 @@ class GaussianFeature {
     m_targetCount = n;
   }
 
+  public int getFeatId() {
+    return m_featId;
+  }
+
   // fit just a feature/attribute
   public void fit(NaiveRecord[] dat, final int[] freq) {
     // get average
@@ -44,11 +48,12 @@ class GaussianFeature {
 
   // calculate log(P(xi=v | y)), where v=feature, y=target
   // do you know what P(xi=v | y) is?
-  public double getLogProb(double feature, int target) {
+  public double getLogProb(NaiveRecord dat, int target) {
     // P(xi=v | y) = 1/sqrt(2*pi * sigma**2) * exp(-(v - avg)**2 / (2 * sigma**2))
     // where a**b means a^b
     // However, I decide to use natural logarithm because logarithm can prevent underflow
     // log P(xi=v | y) = -log(sigma) - (v - avg)**2 / (2 * sigma**2)
+    double feature = dat.num[m_featId];
     double Z = (feature - m_avg[target]) / m_sigma[target];
     return -m_logSigma[target] - Z * Z / 2.0;
   }

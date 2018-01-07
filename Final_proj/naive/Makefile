@@ -4,6 +4,7 @@ CLASSES = \
 	NaiveRecord.java \
 	NaiveTrain.java \
 	GaussianFeature.java \
+	CategoryFeature.java \
 	NaiveClassifier.java
 
 .SUFFIXES: .java .class
