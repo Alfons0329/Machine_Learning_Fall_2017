@@ -2,7 +2,11 @@ class NaiveClassifier {
   // my classmate says I only need Gaussian Naive Bayes
   private GaussianFeature[] continuousFeats;
   private int targetCount;
-  private int[] freq;
+  private int[] freq; // freq[i] = occurrence of target i
+  private double[] logProb;
+  // logProb[i] = Math.log(P(y=i)) = Math.log(freq[i] / data size)
+  // = Math.log(freq[i]) - Math.log(data size)
+  // however, data size is a constant, so I can ignore that term
 
   public void setContinuousFeatures(GaussianFeature ... feats) {
     continuousFeats = feats;
@@ -21,6 +25,11 @@ class NaiveClassifier {
       freq[data[i].target]++;
     }
 
+    logProb = new double[targetCount];
+    for (int i = 0; i < targetCount; i++) {
+      logProb[i] = Math.log(freq[i]);
+    }
+
     for (int i = 0; i < continuousFeats.length; i++) {
       System.out.println("Fitting continuous feature "+i);
       continuousFeats[i].fit(data, freq);
@@ -34,7 +43,7 @@ class NaiveClassifier {
       int best = 0;
       double maxLogP = -1.0e30;
       for (int y = 0; y < targetCount; y++) {
-        double logP = 0;
+        double logP = logProb[y];
         for (int j = 0; j < continuousFeats.length; j++) {
           logP += continuousFeats[j].getLogProb(data[i].num[j], y);
         }
