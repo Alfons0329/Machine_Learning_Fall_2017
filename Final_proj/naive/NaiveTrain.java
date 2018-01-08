@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import java.util.ArrayList;
 
 class NaiveTrain {
+  static final int TargetCount = 8;
   public static void puts(String str) {
     System.out.println(str);
   }
@@ -60,29 +61,29 @@ class NaiveTrain {
   }
 
   static void TellMePriceRange(NaiveRecord[] dat) {
-    int[] range = new int[8];
+    int[] range = new int[TargetCount];
     for (int i = 0; i < dat.length; i++) {
       double $$ = dat[i].price;
       int y;
-      if ($$ > 1_000_000) y = 7;
-      else if ($$ > 100_000) y = 6;
-      else if ($$ > 10_000) y = 5;
-      else if ($$ > 1_000) y = 4;
-      else if ($$ > 100) y = 3;
-      else if ($$ > 10) y = 2;
-      else if ($$ > 1) y = 1;
+      if ($$ > 100_000) y = 7;
+      else if ($$ > 50_000) y = 6;
+      else if ($$ > 20_000) y = 5;
+      else if ($$ > 10_000) y = 4;
+      else if ($$ > 5000) y = 3;
+      else if ($$ > 2000) y = 2;
+      else if ($$ > 1000) y = 1;
       else y = 0;
       dat[i].target = y;
       range[y]++;
     }
-    printf("less than 1: %d\n", range[0]);
-    printf("1 ~ 10: %d\n", range[1]);
-    printf("10 ~ 100: %d\n", range[2]);
-    printf("100 ~ 1,000: %d\n", range[3]);
-    printf("1,000 ~ 10,000: %d\n", range[4]);
-    printf("10,000 ~ 100,000: %d\n", range[5]);
-    printf("100,000 ~ 1,000,000: %d\n", range[6]);
-    printf("more than 1,000,000: %d\n", range[7]);
+    printf("less than 1,000: %d\n", range[0]);
+    printf("1,000 ~ 2,000: %d\n", range[1]);
+    printf("2,000 ~ 5,000: %d\n", range[2]);
+    printf("5,000 ~ 10,000: %d\n", range[3]);
+    printf("10,000 ~ 20,000: %d\n", range[4]);
+    printf("20,000 ~ 50,000: %d\n", range[5]);
+    printf("50,000 ~ 100,000: %d\n", range[6]);
+    printf("more than 100,000: %d\n", range[7]);
   }
 
   public static void main(String[] args) {
@@ -115,7 +116,7 @@ class NaiveTrain {
       new CategoryFeature(4), // seat count
       new CategoryFeature(5) // Fuel_type
     );
-    bayes.setTargetCount(8);
+    bayes.setTargetCount(TargetCount);
     bayes.fit(trainData);
 
     puts("Reading testing data");
@@ -127,6 +128,18 @@ class NaiveTrain {
     TellMePriceRange(testData);
 
     puts("Testing");
-    bayes.predict(testData);
+    int[] result = bayes.predict(testData);
+    int[][] confusion = new int[TargetCount][TargetCount];
+    for (int i = 0; i < result.length; i++) {
+      confusion[result[i]][testData[i].target]++; // [predicted][actual]
+    }
+    puts("Confusion matrix");
+    for (int i = 0; i < TargetCount; i++) {
+      for (int j = 0; j < TargetCount; j++) {
+        if (j > 0) System.out.print("\t");
+        System.out.print(confusion[i][j]);
+      }
+      puts("");
+    }
   }
 }
