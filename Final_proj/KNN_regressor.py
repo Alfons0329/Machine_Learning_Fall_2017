@@ -1,5 +1,6 @@
 import numpy as np
 import sklearn.neighbors as sknn
+import sklearn.preprocessing as skpre
 import matplotlib.pyplot as plt
 import scipy.stats as stat
 import math
@@ -131,6 +132,17 @@ def correlation_optimization(train_data, train_target):
 
 def KNN_core(train_data, train_target, test_data, test_target):
     #Plotting the graph of N-Neighbor vs Accuracy
+    train_data = skpre.normalize(train_data)
+    #train_target = np.array(train_target) #aimed for reshape
+    #train_target = np.array.reshape(-1,1)
+    #train_target = train_target.tolist()
+    #train_target = skpre.normalize(train_target)
+
+    test_data = skpre.normalize(test_data)
+    #test_target = np.array(test_target) #aimed for reshape
+    #test_target = np.array.reshape(-1,1)
+    #test_target = test_target.tolist()
+    #test_target = skpre.normalize(test_target)
     tmp_x = []
     tmp_y = []
     global x_axis_nei_cnt
